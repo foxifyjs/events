@@ -15,6 +15,7 @@ function assertListener(listener: (...args: any[]) => void) {
   assert(typeof listener === "function", "'listener' must be a function");
 }
 
+// tslint:disable-next-line:function-name
 function _addListener(
   emitter: EventEmitter,
   event: string | symbol,
@@ -80,7 +81,7 @@ class EventEmitter {
     if (!listeners) return [];
 
     const length = listeners.length;
-    const ret = new Array(length);
+    const ret = [];
 
     for (let i = 0; i < length; i++) {
       ret[i] = listeners[i].listener;
@@ -198,7 +199,7 @@ class EventEmitter {
 
     if (index < 0) return this;
 
-    if (index === 0) listeners.shift()!;
+    if (index === 0) listeners.shift();
     else listeners.splice(index, 1);
 
     this._listeners[event as string] = listeners;

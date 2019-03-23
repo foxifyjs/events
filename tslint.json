@@ -5,6 +5,7 @@
   "rules": {
     "no-namespace": false,
     "no-increment-decrement": false,
+    "no-parameter-reassignment": false,
     "interface-name": false,
     "quotemark": [true, "double"],
     "variable-name": [
@@ -22,7 +23,7 @@
         "static-method-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]*\\]?$",
         "function-regex": "^\\*?\\[?[a-zA-Z][\\w\\d\\.]*\\]?$"
       }
-    ],
+    ]
   },
   "rulesDirectory": ["src"]
 }
