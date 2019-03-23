@@ -30,7 +30,7 @@
     "lint": "tslint -p tsconfig.json -c tslint.json --exclude '**/*.d.ts'",
     "test": "jest",
     "coverage": "npm test -- --coverage",
-    "codecov": "npm run coverage -- --runInBand && codecov",
+    "codecov": "npm run build && npm run coverage -- --runInBand && codecov",
     "benchmark": "find benchmarks -name '*.js' -exec benchmarks/start.sh {} \\;"
   },
   "dependencies": {},
