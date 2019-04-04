@@ -27,6 +27,13 @@ This module is API compatible with the EventEmitter that ships by default with N
 
 ## Table of Contents <!-- omit in toc -->
 
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Contextual emits](#contextual-emits)
+- [Versioning](#versioning)
+- [Authors](#authors)
+- [License](#license)
+
 ## Installation
 
 ```bash
