@@ -21,7 +21,6 @@
 
 This module is API compatible with the EventEmitter that ships by default with Node.js but there are some slight differences:
 
-- We do not `throw` an error when you emit an `error` event and nobody is listening.
 - The `newListener` and `removeListener` events have been removed as they are useful only in some uncommon use-cases.
 - The `setMaxListeners` and `getMaxListeners` methods are not available.
 - Support for custom context for events so there is no need to use `bind`.

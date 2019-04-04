@@ -1,10 +1,10 @@
-import { EventEmitter } from "..";
+import { EventEmitter } from "../src";
 
 it("only emits it once", () => {
   const e = new EventEmitter();
   let calls = 0;
 
-  e.once("foo", function() {
+  e.once("foo", () => {
     calls++;
   });
 
@@ -22,7 +22,7 @@ it("only emits once if emits are nested inside the listener", () => {
   const e = new EventEmitter();
   let calls = 0;
 
-  e.once("foo", function() {
+  e.once("foo", () => {
     calls++;
     e.emit("foo");
   });
@@ -38,15 +38,15 @@ it("only emits once for multiple events", () => {
   let foo = 0;
   let bar = 0;
 
-  e.once("foo", function() {
+  e.once("foo", () => {
     foo++;
   });
 
-  e.once("foo", function() {
+  e.once("foo", () => {
     bar++;
   });
 
-  e.on("foo", function() {
+  e.on("foo", () => {
     multi++;
   });
 

@@ -1,4 +1,4 @@
-import { EventEmitter } from "..";
+import { EventEmitter } from "../src";
 
 it("removes only the first listener matching the specified listener", () => {
   const e = new EventEmitter();

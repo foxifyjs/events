@@ -15,8 +15,7 @@ function assertListener(listener: (...args: any[]) => void) {
   assert(typeof listener === "function", "'listener' must be a function");
 }
 
-// tslint:disable-next-line:function-name
-function _addListener(
+function addListener(
   emitter: EventEmitter,
   event: string | symbol,
   listener: (...args: any[]) => void,
@@ -96,16 +95,26 @@ class EventEmitter {
     return this._listeners[event as string] || [];
   }
 
+  public emit(event: "error", error: Error): boolean;
+  public emit(event: string | symbol, ...args: any[]): boolean;
   public emit(event: string | symbol, ...args: any[]) {
     assertEvent(event);
 
     const listeners = this._listeners[event as string];
 
-    if (!listeners) return false;
+    if (!listeners) {
+      if (event === "error") throw args[0];
+
+      return false;
+    }
 
     const length = listeners.length;
 
-    if (!length) return false;
+    if (!length) {
+      if (event === "error") throw args[0];
+
+      return false;
+    }
 
     for (let i = 0; i < length; i++) {
       const { listener, context, once } = listeners[i];
@@ -123,7 +132,7 @@ class EventEmitter {
     listener: (...args: any[]) => void,
     context?: any,
   ) {
-    return _addListener(this, event, listener, context, false, false);
+    return addListener(this, event, listener, context, false, false);
   }
 
   public once(
@@ -131,7 +140,7 @@ class EventEmitter {
     listener: (...args: any[]) => void,
     context?: any,
   ) {
-    return _addListener(this, event, listener, context, false, true);
+    return addListener(this, event, listener, context, false, true);
   }
 
   public prependListener(
@@ -139,7 +148,7 @@ class EventEmitter {
     listener: (...args: any[]) => void,
     context?: any,
   ) {
-    return _addListener(this, event, listener, context, true, false);
+    return addListener(this, event, listener, context, true, false);
   }
 
   public prependOnceListener(
@@ -147,7 +156,7 @@ class EventEmitter {
     listener: (...args: any[]) => void,
     context?: any,
   ) {
-    return _addListener(this, event, listener, context, true, true);
+    return addListener(this, event, listener, context, true, true);
   }
 
   public removeAllListeners(event?: string | symbol) {

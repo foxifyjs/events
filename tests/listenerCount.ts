@@ -1,4 +1,4 @@
-import { EventEmitter } from "..";
+import { EventEmitter } from "../src";
 
 it("returns the number of listeners for a given event", () => {
   const e = new EventEmitter();

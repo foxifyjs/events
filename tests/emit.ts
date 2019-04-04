@@ -1,4 +1,4 @@
-import { EventEmitter } from "..";
+import { EventEmitter } from "../src";
 
 it("should return false when there are not events to emit", () => {
   const e = new EventEmitter();

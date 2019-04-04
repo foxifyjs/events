@@ -1,4 +1,4 @@
-import { EventEmitter } from "..";
+import { EventEmitter } from "../src";
 
 it("returns an empty array when there are no events", () => {
   const e = new EventEmitter();

@@ -1,4 +1,4 @@
-import { EventEmitter } from "..";
+import { EventEmitter } from "../src";
 
 it("should work with ES6 symbols", done => {
   const e = new EventEmitter();

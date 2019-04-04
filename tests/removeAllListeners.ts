@@ -1,4 +1,4 @@
-import { EventEmitter } from "..";
+import { EventEmitter } from "../src";
 
 it("removes all events for the specified events", () => {
   const e = new EventEmitter();

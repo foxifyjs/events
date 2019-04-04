@@ -1,4 +1,4 @@
-import { EventEmitter } from "..";
+import { EventEmitter } from "../src";
 
 it("throws an error if the listener is not a function", () => {
   const e = new EventEmitter();
