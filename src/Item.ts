@@ -1,8 +1,8 @@
 class Item {
   constructor(
-    public listener: (...args: any[]) => void,
-    public context: any,
-    public once: boolean,
+    public readonly listener: (...args: any[]) => void,
+    public readonly context: any,
+    public readonly once: boolean,
   ) {}
 }
 

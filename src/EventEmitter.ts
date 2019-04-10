@@ -64,23 +64,20 @@ class EventEmitter {
     );
   }
 
-  public listenerCount(event: string | symbol) {
+  public rawListeners(event: string | symbol) {
     assertEvent(event);
 
-    const listeners = this._listeners[event as string];
-
-    return listeners ? listeners.length : 0;
+    return this._listeners[event as string] || [];
   }
 
   public listeners(event: string | symbol) {
-    assertEvent(event);
-
-    const listeners = this._listeners[event as string];
-
-    if (!listeners) return [];
-
+    const listeners = this.rawListeners(event);
     const length = listeners.length;
-    const ret = [];
+
+    if (!length) return [];
+
+    // tslint:disable-next-line:prefer-array-literal
+    const ret = new Array(length);
 
     for (let i = 0; i < length; i++) {
       ret[i] = listeners[i].listener;
@@ -89,25 +86,14 @@ class EventEmitter {
     return ret;
   }
 
-  public rawListeners(event: string | symbol) {
-    assertEvent(event);
-
-    return this._listeners[event as string] || [];
+  public listenerCount(event: string | symbol) {
+    return this.rawListeners(event).length;
   }
 
   public emit(event: "error", error: Error): boolean;
   public emit(event: string | symbol, ...args: any[]): boolean;
   public emit(event: string | symbol, ...args: any[]) {
-    assertEvent(event);
-
-    const listeners = this._listeners[event as string];
-
-    if (!listeners) {
-      if (event === "error") throw args[0];
-
-      return false;
-    }
-
+    const listeners = this.rawListeners(event);
     const length = listeners.length;
 
     if (!length) {
@@ -184,14 +170,14 @@ class EventEmitter {
     event: string | symbol,
     listener: (...args: any[]) => void,
   ) {
-    assertEvent(event);
     assertListener(listener);
 
-    let listeners = this._listeners[event as string];
+    let listeners = this.rawListeners(event);
+    const length = listeners.length;
 
-    if (!listeners) return this;
+    if (!length) return this;
 
-    if (listeners.length === 1) {
+    if (length === 1) {
       if (listener !== listeners[0].listener) return this;
 
       this._listeners[event as string] = undefined;
@@ -199,9 +185,9 @@ class EventEmitter {
       return this;
     }
 
-    listeners = [...listeners];
+    listeners = listeners.slice(0);
 
-    let index = listeners.length - 1;
+    let index = length - 1;
     for (; index >= 0; index--) {
       if (listeners[index].listener === listener) break;
     }

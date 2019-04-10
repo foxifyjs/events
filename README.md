@@ -77,7 +77,7 @@ We use [SemVer](http://semver.org) for versioning. For the versions available, s
 
 ## Authors
 
-- **Ardalan Amini** - *Owner/Developer* - [@ardalanamini](https://github.com/ardalanamini)
+- **Ardalan Amini** - *Core Maintainer* - [@ardalanamini](https://github.com/ardalanamini)
 
 See also the list of [contributors](https://github.com/foxifyjs/events/contributors) who participated in this project.
 
