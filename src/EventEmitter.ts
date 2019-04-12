@@ -11,14 +11,14 @@ function assertEvent(event: string | symbol) {
   );
 }
 
-function assertListener(listener: (...args: any[]) => void) {
+function assertListener(listener: EventEmitter.DefaultListener) {
   assert(typeof listener === "function", "'listener' must be a function");
 }
 
 function addListener(
   emitter: EventEmitter,
   event: string | symbol,
-  listener: (...args: any[]) => void,
+  listener: EventEmitter.DefaultListener,
   context: any = emitter,
   prepend: boolean,
   once: boolean,
@@ -38,45 +38,72 @@ function addListener(
 }
 
 namespace EventEmitter {
+  export type DefaultListener = (...args: any[]) => void;
+
+  export type DefaultEvents = {
+    [E in string | symbol]: EventEmitter.DefaultListener
+  };
+
+  export type Event<Events extends {}> = Extract<
+    keyof Events,
+    string | symbol
+  >;
+
+  export type EmitArgs<T> = [T] extends [(...args: infer U) => any]
+    ? U
+    : [T] extends [void]
+    ? []
+    : [T];
+
   export interface Listeners {
     [event: string]: Item[] | undefined;
   }
 }
 
-interface EventEmitter {
-  on(
-    event: string | symbol,
-    listener: (...args: any[]) => void,
+interface EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
+  on(event: "error", listener: (error: Error) => void, context?: any): this;
+  on<K extends EventEmitter.Event<Events>>(
+    event: K,
+    listener: Events[K],
     context?: any,
   ): this;
 
-  off(event: string | symbol, listener: (...args: any[]) => void): this;
+  off(event: "error", listener: (error: Error) => void): this;
+  off<K extends EventEmitter.Event<Events>>(
+    event: K,
+    listener: Events[K],
+  ): this;
 }
 
-class EventEmitter {
+class EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
   protected _listeners: EventEmitter.Listeners = {};
 
-  public eventNames() {
+  public eventNames(): Array<EventEmitter.Event<Events>> {
     const listeners = this._listeners;
 
     return Object.keys(listeners).filter(
       event => listeners[event] !== undefined,
-    );
+    ) as any;
   }
 
+  public rawListeners(event: "error"): Item[];
+  public rawListeners<K extends EventEmitter.Event<Events>>(event: K): Item[];
   public rawListeners(event: string | symbol) {
     assertEvent(event);
 
     return this._listeners[event as string] || [];
   }
 
+  public listeners(event: "error"): EventEmitter.DefaultListener[];
+  public listeners<K extends EventEmitter.Event<Events>>(
+    event: K,
+  ): Array<Events[K]>;
   public listeners(event: string | symbol) {
-    const listeners = this.rawListeners(event);
+    const listeners = this.rawListeners(event as any);
     const length = listeners.length;
 
     if (!length) return [];
 
-    // tslint:disable-next-line:prefer-array-literal
     const ret = new Array(length);
 
     for (let i = 0; i < length; i++) {
@@ -86,14 +113,19 @@ class EventEmitter {
     return ret;
   }
 
+  public listenerCount(event: "error"): number;
+  public listenerCount<K extends EventEmitter.Event<Events>>(event: K): number;
   public listenerCount(event: string | symbol) {
-    return this.rawListeners(event).length;
+    return this.rawListeners(event as any).length;
   }
 
   public emit(event: "error", error: Error): boolean;
-  public emit(event: string | symbol, ...args: any[]): boolean;
+  public emit<K extends EventEmitter.Event<Events>>(
+    event: K,
+    ...args: EventEmitter.EmitArgs<Events[K]>
+  ): boolean;
   public emit(event: string | symbol, ...args: any[]) {
-    const listeners = this.rawListeners(event);
+    const listeners = this.rawListeners(event as any);
     const length = listeners.length;
 
     if (!length) {
@@ -105,7 +137,7 @@ class EventEmitter {
     for (let i = 0; i < length; i++) {
       const { listener, context, once } = listeners[i];
 
-      if (once) this.removeListener(event, listener);
+      if (once) this.removeListener(event as any, listener as any);
 
       listener.apply(context, args);
     }
@@ -114,37 +146,81 @@ class EventEmitter {
   }
 
   public addListener(
+    event: "error",
+    listener: (error: Error) => void,
+    context?: any,
+  ): this;
+  public addListener<K extends EventEmitter.Event<Events>>(
+    event: K,
+    listener: Events[K],
+    context?: any,
+  ): this;
+  public addListener(
     event: string | symbol,
-    listener: (...args: any[]) => void,
+    listener: EventEmitter.DefaultListener,
     context?: any,
   ) {
     return addListener(this, event, listener, context, false, false);
   }
 
   public once(
+    event: "error",
+    listener: (error: Error) => void,
+    context?: any,
+  ): this;
+  public once<K extends EventEmitter.Event<Events>>(
+    event: K,
+    listener: Events[K],
+    context?: any,
+  ): this;
+  public once(
     event: string | symbol,
-    listener: (...args: any[]) => void,
+    listener: EventEmitter.DefaultListener,
     context?: any,
   ) {
     return addListener(this, event, listener, context, false, true);
   }
 
   public prependListener(
+    event: "error",
+    listener: (error: Error) => void,
+    context?: any,
+  ): this;
+  public prependListener<K extends EventEmitter.Event<Events>>(
+    event: K,
+    listener: Events[K],
+    context?: any,
+  ): this;
+  public prependListener(
     event: string | symbol,
-    listener: (...args: any[]) => void,
+    listener: EventEmitter.DefaultListener,
     context?: any,
   ) {
     return addListener(this, event, listener, context, true, false);
   }
 
   public prependOnceListener(
+    event: "error",
+    listener: (error: Error) => void,
+    context?: any,
+  ): this;
+  public prependOnceListener<K extends EventEmitter.Event<Events>>(
+    event: K,
+    listener: Events[K],
+    context?: any,
+  ): this;
+  public prependOnceListener(
     event: string | symbol,
-    listener: (...args: any[]) => void,
+    listener: EventEmitter.DefaultListener,
     context?: any,
   ) {
     return addListener(this, event, listener, context, true, true);
   }
 
+  public removeAllListeners(event?: "error"): this;
+  public removeAllListeners<K extends EventEmitter.Event<Events>>(
+    event: K,
+  ): this;
   public removeAllListeners(event?: string | symbol) {
     assert(
       event === undefined ||
@@ -166,13 +242,18 @@ class EventEmitter {
     return this;
   }
 
+  public removeListener(event: "error", listener: (error: Error) => void): this;
+  public removeListener<K extends EventEmitter.Event<Events>>(
+    event: K,
+    listener: Events[K],
+  ): this;
   public removeListener(
     event: string | symbol,
-    listener: (...args: any[]) => void,
+    listener: EventEmitter.DefaultListener,
   ) {
     assertListener(listener);
 
-    let listeners = this.rawListeners(event);
+    let listeners = this.rawListeners(event as any);
     const length = listeners.length;
 
     if (!length) return this;

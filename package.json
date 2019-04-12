@@ -1,7 +1,7 @@
 {
   "name": "@foxify/events",
-  "version": "1.1.1",
-  "description": "An EventEmitter alternative for Node.js and browser",
+  "version": "1.1.2",
+  "description": "A high performance EventEmitter alternative for Node.js and browser",
   "author": "Ardalan Amini <ardalanamini22@gmail.com> (https://ardalanamini.com)",
   "license": "MIT",
   "homepage": "https://github.com/foxifyjs/events#readme",
@@ -40,10 +40,9 @@
     "codecov": "npm run build && npm run coverage -- --runInBand && codecov",
     "benchmarks": "find benchmarks -name '*.js' -exec benchmarks/start.sh {} \\;"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/jest": "^24.0.11",
-    "@types/node": "^11.13.2",
+    "@types/node": "^11.13.4",
     "benchmark": "^2.1.4",
     "codecov": "^3.3.0",
     "drip": "^1.4.0",

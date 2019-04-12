@@ -1,6 +1,6 @@
 # Events <!-- omit in toc -->
 
-`@foxify/events` is an EventEmitter alternative for Node.js and browser that has been optimized to be faster than the native version, (why not?!).
+`@foxify/events` is a high performance EventEmitter alternative for Node.js and browser that has been optimized to be faster than the native version, (why not?!).
 
 [![NPM Version](https://img.shields.io/npm/v/@foxify/events.svg)](https://www.npmjs.com/package/@foxify/events)
 [![TypeScript Version](https://img.shields.io/npm/types/@foxify/events.svg)](https://www.typescriptlang.org)
@@ -24,11 +24,13 @@ This module is API compatible with the EventEmitter that ships by default with N
 - The `newListener` and `removeListener` events have been removed as they are useful only in some uncommon use-cases.
 - The `setMaxListeners` and `getMaxListeners` methods are not available.
 - Support for custom context for events so there is no need to use `bind`.
+- Support for strict events in TypeScript.
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Strict events](#strict-events)
   - [Contextual emits](#contextual-emits)
 - [Versioning](#versioning)
 - [Authors](#authors)
@@ -47,6 +49,35 @@ const { EventEmitter } = require("@foxify/events");
 ```
 
 For the API documentation, please follow the official Node.js [documentation](https://nodejs.org/api/events.html).
+
+### Strict events
+
+> "error" event is always defined by default because of its different behavior
+
+```ts
+interface Events {
+  foo: (bar: string) => void;
+}
+
+const eventEmitter = new EventEmitter<Events>();
+
+// or
+
+class Emitter extends EventEmitter<Events> {
+}
+
+const eventEmitter = new Emitter();
+
+// Throws an error, since this event requires the "bar" argument of type "string"
+eventEmitter.emit("foo");
+
+// Works just fine
+eventEmitter.emit("foo");
+
+// Works just fine. so don't worry about "ImplicitAny" config, since type of "bar" is defined as "string"
+eventEmitter.on("foo", bar => 1);
+
+```
 
 ### Contextual emits
 

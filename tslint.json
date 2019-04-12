@@ -7,6 +7,7 @@
     "no-increment-decrement": false,
     "no-parameter-reassignment": false,
     "interface-name": false,
+    "prefer-array-literal": false,
     "quotemark": [true, "double"],
     "variable-name": [
       true,

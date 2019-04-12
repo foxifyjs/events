@@ -13,6 +13,10 @@
 
 ---
 
+## [v1.1.2](https://github.com/foxifyjs/events/releases/tag/v1.1.2) - _(2019-04-12)_
+
+- :star2: Added Ability to define strict events.
+
 ## [v1.1.1](https://github.com/foxifyjs/events/releases/tag/v1.1.1) - _(2019-04-10)_
 
 - :star2: Minimize code for browsers.
