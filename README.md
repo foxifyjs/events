@@ -4,6 +4,8 @@
 
 [![NPM Version](https://img.shields.io/npm/v/@foxify/events.svg)](https://www.npmjs.com/package/@foxify/events)
 [![TypeScript Version](https://img.shields.io/npm/types/@foxify/events.svg)](https://www.typescriptlang.org)
+[![npm bundle size (minified)](https://img.shields.io/bundlephobia/min/@foxify/events.svg)](https://www.npmjs.com/package/@foxify/events)
+[![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@foxify/events.svg)](https://www.npmjs.com/package/@foxify/events)
 [![Tested With Jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
 [![Pull Requests](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](https://github.com/foxifyjs/events/pulls)
 [![License](https://img.shields.io/github/license/foxifyjs/events.svg)](https://github.com/foxifyjs/events/blob/master/LICENSE)
@@ -32,6 +34,7 @@ This module is API compatible with the EventEmitter that ships by default with N
 - [Usage](#usage)
   - [Strict events](#strict-events)
   - [Contextual emits](#contextual-emits)
+- [Benchmarks](#benchmarks)
 - [Versioning](#versioning)
 - [Authors](#authors)
 - [License](#license)
@@ -100,6 +103,12 @@ eventEmitter.once("event:2", emitted, context);
 eventEmitter.addListener("event:3", emitted, context);
 eventEmitter.prependListener("event:4", emitted, context);
 eventEmitter.prependOnceListener("event:5", emitted, context);
+```
+
+## Benchmarks
+
+```bash
+npm run benchmarks
 ```
 
 ## Versioning

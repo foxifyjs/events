@@ -44,16 +44,17 @@ namespace EventEmitter {
     [E in string | symbol]: EventEmitter.DefaultListener
   };
 
-  export type Event<Events extends {}> = Extract<
-    keyof Events,
-    string | symbol
-  >;
+  export type Event<Events extends {}> = Extract<keyof Events, string | symbol>;
 
   export type EmitArgs<T> = [T] extends [(...args: infer U) => any]
     ? U
     : [T] extends [void]
     ? []
     : [T];
+
+  export type Listener<E extends {}, K extends keyof E> = (
+    ...args: EmitArgs<E[K]>
+  ) => void;
 
   export interface Listeners {
     [event: string]: Item[] | undefined;
@@ -64,14 +65,14 @@ interface EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
   on(event: "error", listener: (error: Error) => void, context?: any): this;
   on<K extends EventEmitter.Event<Events>>(
     event: K,
-    listener: Events[K],
+    listener: EventEmitter.Listener<Events, K>,
     context?: any,
   ): this;
 
   off(event: "error", listener: (error: Error) => void): this;
   off<K extends EventEmitter.Event<Events>>(
     event: K,
-    listener: Events[K],
+    listener: EventEmitter.Listener<Events, K>,
   ): this;
 }
 
@@ -97,7 +98,7 @@ class EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
   public listeners(event: "error"): EventEmitter.DefaultListener[];
   public listeners<K extends EventEmitter.Event<Events>>(
     event: K,
-  ): Array<Events[K]>;
+  ): Array<EventEmitter.Listener<Events, K>>;
   public listeners(event: string | symbol) {
     const listeners = this.rawListeners(event as any);
     const length = listeners.length;
@@ -152,7 +153,7 @@ class EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
   ): this;
   public addListener<K extends EventEmitter.Event<Events>>(
     event: K,
-    listener: Events[K],
+    listener: EventEmitter.Listener<Events, K>,
     context?: any,
   ): this;
   public addListener(
@@ -170,7 +171,7 @@ class EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
   ): this;
   public once<K extends EventEmitter.Event<Events>>(
     event: K,
-    listener: Events[K],
+    listener: EventEmitter.Listener<Events, K>,
     context?: any,
   ): this;
   public once(
@@ -188,7 +189,7 @@ class EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
   ): this;
   public prependListener<K extends EventEmitter.Event<Events>>(
     event: K,
-    listener: Events[K],
+    listener: EventEmitter.Listener<Events, K>,
     context?: any,
   ): this;
   public prependListener(
@@ -206,7 +207,7 @@ class EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
   ): this;
   public prependOnceListener<K extends EventEmitter.Event<Events>>(
     event: K,
-    listener: Events[K],
+    listener: EventEmitter.Listener<Events, K>,
     context?: any,
   ): this;
   public prependOnceListener(
@@ -245,7 +246,7 @@ class EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
   public removeListener(event: "error", listener: (error: Error) => void): this;
   public removeListener<K extends EventEmitter.Event<Events>>(
     event: K,
-    listener: Events[K],
+    listener: EventEmitter.Listener<Events, K>,
   ): this;
   public removeListener(
     event: string | symbol,

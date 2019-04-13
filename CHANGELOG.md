@@ -13,6 +13,10 @@
 
 ---
 
+## [v1.1.3](https://github.com/foxifyjs/events/releases/tag/v1.1.3) - _(2019-04-13)_
+
+- :beetle: Fixed a bug related to extended (with `&` instead of `extends`) strict events.
+
 ## [v1.1.2](https://github.com/foxifyjs/events/releases/tag/v1.1.2) - _(2019-04-12)_
 
 - :star2: Added Ability to define strict events.
