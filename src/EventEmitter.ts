@@ -1,5 +1,3 @@
-import Item from "./Item";
-
 function assert(condition: boolean, message: string) {
   if (!condition) throw new TypeError(message);
 }
@@ -13,6 +11,14 @@ function assertEvent(event: string | symbol) {
 
 function assertListener(listener: EventEmitter.DefaultListener) {
   assert(typeof listener === "function", "'listener' must be a function");
+}
+
+export class Item {
+  constructor(
+    public readonly listener: (...args: any[]) => void,
+    public readonly context: any,
+    public readonly once: boolean,
+  ) {}
 }
 
 function addListener(
@@ -76,8 +82,14 @@ interface EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
   ): this;
 }
 
+// tslint:disable-next-line:max-classes-per-file
 class EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
   protected _listeners: EventEmitter.Listeners = {};
+
+  constructor() {
+    this.on = this.addListener;
+    this.off = this.removeListener;
+  }
 
   public eventNames(): Array<EventEmitter.Event<Events>> {
     const listeners = this._listeners;
@@ -284,8 +296,5 @@ class EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
     return this;
   }
 }
-
-EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
 
 export default EventEmitter;

@@ -13,6 +13,10 @@
 
 ---
 
+## [v1.1.4](https://github.com/foxifyjs/events/releases/tag/v1.1.4) - _(2019-05-22)_
+
+- :beetle: Fixed a bug related to extending `on` and `off` methods through `addListener` and `removeListener`.
+
 ## [v1.1.3](https://github.com/foxifyjs/events/releases/tag/v1.1.3) - _(2019-04-13)_
 
 - :beetle: Fixed a bug related to extended (with `&` instead of `extends`) strict events.
