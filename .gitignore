@@ -87,3 +87,5 @@ typings/
 .vscode/
 
 dist/
+
+*.tsbuildinfo

@@ -21,14 +21,14 @@ export class Item {
   ) {}
 }
 
-function addListener(
-  emitter: EventEmitter,
+function addListener<T>(
+  emitter: T,
   event: string | symbol,
   listener: EventEmitter.DefaultListener,
   context: any = emitter,
   prepend: boolean,
   once: boolean,
-) {
+): T {
   assertEvent(event);
   assertListener(listener);
 
@@ -43,6 +43,10 @@ function addListener(
   return emitter;
 }
 
+export type EventTemplate = {
+  [Event in string | symbol]: (...args: unknown[]) => void
+}
+
 namespace EventEmitter {
   export type DefaultListener = (...args: any[]) => void;
 
@@ -50,7 +54,7 @@ namespace EventEmitter {
     [E in string | symbol]: EventEmitter.DefaultListener
   };
 
-  export type Event<Events extends {}> = Extract<keyof Events, string | symbol>;
+  export type Event<Events extends EventTemplate> = Extract<keyof Events, string | symbol>;
 
   export type EmitArgs<T> = [T] extends [(...args: infer U) => any]
     ? U
@@ -58,7 +62,7 @@ namespace EventEmitter {
     ? []
     : [T];
 
-  export type Listener<E extends {}, K extends keyof E> = (
+  export type Listener<E extends EventTemplate, K extends keyof E> = (
     ...args: EmitArgs<E[K]>
   ) => void;
 
@@ -67,7 +71,7 @@ namespace EventEmitter {
   }
 }
 
-interface EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
+interface EventEmitter<Events extends EventTemplate = EventTemplate> {
   on(event: "error", listener: (error: Error) => void, context?: any): this;
   on<K extends EventEmitter.Event<Events>>(
     event: K,
@@ -83,7 +87,7 @@ interface EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-class EventEmitter<Events extends {} = EventEmitter.DefaultEvents> {
+class EventEmitter<Events extends EventTemplate = EventTemplate> {
   protected _listeners: EventEmitter.Listeners = {};
 
   constructor() {
