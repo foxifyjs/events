@@ -9,7 +9,7 @@
 [![Tested With Jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
 [![Pull Requests](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](https://github.com/foxifyjs/events/pulls)
 [![License](https://img.shields.io/github/license/foxifyjs/events.svg)](https://github.com/foxifyjs/events/blob/master/LICENSE)
-[![Build Status](https://api.travis-ci.com/foxifyjs/events.svg?branch=master)](https://travis-ci.com/foxifyjs/events)
+[![Build Status](https://github.com/foxifyjs/events/workflows/Test/badge.svg)](https://github.com/foxifyjs/events/actions)
 [![Coverage Status](https://codecov.io/gh/foxifyjs/events/branch/master/graph/badge.svg)](https://codecov.io/gh/foxifyjs/events)
 [![Package Quality](http://npm.packagequality.com/shield/%40foxify%2Fodin.svg)](http://packagequality.com/#?package=@foxify/events)
 [![Dependencies Status](https://david-dm.org/foxifyjs/events.svg)](https://david-dm.org/foxifyjs/events)
