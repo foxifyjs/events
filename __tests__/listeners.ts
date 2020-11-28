@@ -1,4 +1,4 @@
-import { EventEmitter } from "../src";
+import EventEmitter from "../src";
 
 it("returns an empty array if no listeners are specified", () => {
   const e = new EventEmitter();
@@ -11,8 +11,7 @@ it("returns an array of function", () => {
   const e = new EventEmitter();
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  function foo() {
-  }
+  function foo() {}
 
   e.on("foo", foo);
 
@@ -25,8 +24,7 @@ it("is not vulnerable to modifications", () => {
   const e = new EventEmitter();
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  function foo() {
-  }
+  function foo() {}
 
   e.on("foo", foo);
 

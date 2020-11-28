@@ -1,4 +1,4 @@
-import { EventEmitter } from "../src";
+import EventEmitter from "../src";
 
 it("only emits it once", () => {
   const e = new EventEmitter();
@@ -62,13 +62,13 @@ it("only emits once for multiple events", () => {
   expect(multi).toBe(5);
 });
 
-it("only emits once with context", done => {
+it("only emits once with context", (done) => {
   const context = { foo: "bar" };
   const e = new EventEmitter();
 
   e.once(
     "foo",
-    function(this: any, bar) {
+    function (this: unknown, bar) {
       expect(this).toEqual(context);
       expect(bar).toBe("bar");
 

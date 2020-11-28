@@ -1,123 +1,49 @@
-function assert(condition: boolean, message: string) {
-  if (!condition) throw new TypeError(message);
-}
+import type {
+  EventTemplateT,
+  TemplateListenerArgsT,
+  TemplateEventT,
+  TemplateListenerT,
+  ListenersT,
+} from "./constants";
+import Item from "./Item";
 
-function assertEvent(event: string | symbol) {
-  assert(
-    typeof event === "string" || typeof event === "symbol",
-    "'event' must be an string or symbol",
-  );
-}
+export default class EventEmitter<
+  Template extends EventTemplateT = EventTemplateT
+> {
+  protected _listeners: ListenersT<Template> = {};
 
-function assertListener(listener: EventEmitter.DefaultListener) {
-  assert(typeof listener === "function", "'listener' must be a function");
-}
+  public on: <Event extends TemplateEventT<Template>>(
+    event: Event,
+    listener: TemplateListenerT<Template, Event>,
+    context?: unknown,
+  ) => this;
 
-export class Item {
-  constructor(
-    public readonly listener: (...args: any[]) => void,
-    public readonly context: any,
-    public readonly once: boolean,
-  ) {}
-}
-
-function addListener<T>(
-  emitter: T,
-  event: string | symbol,
-  listener: EventEmitter.DefaultListener,
-  context: any = emitter,
-  prepend: boolean,
-  once: boolean,
-): T {
-  assertEvent(event);
-  assertListener(listener);
-
-  const listeners = (emitter as any)._listeners;
-  listener = new Item(listener, context, once) as any;
-
-  if (listeners[event]) {
-    if (prepend) listeners[event].unshift(listener);
-    else listeners[event].push(listener);
-  } else listeners[event] = [listener];
-
-  return emitter;
-}
-
-export type EventTemplate = {
-  [Event in string | symbol]: (...args: unknown[]) => void
-}
-
-// eslint-disable-next-line @typescript-eslint/no-namespace
-namespace EventEmitter {
-  export type DefaultListener = (...args: any[]) => void;
-
-  export type DefaultEvents = {
-    [E in string | symbol]: EventEmitter.DefaultListener
-  };
-
-  export type Event<Events extends EventTemplate> = Extract<keyof Events, string | symbol>;
-
-  export type EmitArgs<T> = [T] extends [(...args: infer U) => any]
-    ? U
-    : [T] extends [void]
-    ? []
-    : [T];
-
-  export type Listener<E extends EventTemplate, K extends keyof E> = (
-    ...args: EmitArgs<E[K]>
-  ) => void;
-
-  export interface Listeners {
-    [event: string]: Item[] | undefined;
-  }
-}
-
-interface EventEmitter<Events extends EventTemplate = EventTemplate> {
-  on(event: "error", listener: (error: Error) => void, context?: any): this;
-  on<K extends EventEmitter.Event<Events>>(
-    event: K,
-    listener: EventEmitter.Listener<Events, K>,
-    context?: any,
-  ): this;
-
-  off(event: "error", listener: (error: Error) => void): this;
-  off<K extends EventEmitter.Event<Events>>(
-    event: K,
-    listener: EventEmitter.Listener<Events, K>,
-  ): this;
-}
-
-// tslint:disable-next-line:max-classes-per-file
-class EventEmitter<Events extends EventTemplate = EventTemplate> {
-  protected _listeners: EventEmitter.Listeners = {};
+  public off: <Event extends TemplateEventT<Template>>(
+    event: Event,
+    listener: TemplateListenerT<Template, Event>,
+  ) => this;
 
   constructor() {
     this.on = this.addListener;
     this.off = this.removeListener;
   }
 
-  public eventNames(): Array<EventEmitter.Event<Events>> {
+  public eventNames(): TemplateEventT<Template>[] {
     const listeners = this._listeners;
 
-    return Object.keys(listeners).filter(
-      event => listeners[event] !== undefined,
-    ) as any;
+    return Object.keys(listeners).filter((event) => listeners[event] != null);
   }
 
-  public rawListeners(event: "error"): Item[];
-  public rawListeners<K extends EventEmitter.Event<Events>>(event: K): Item[];
-  public rawListeners(event: string | symbol) {
-    assertEvent(event);
-
-    return this._listeners[event as string] || [];
+  public rawListeners<Event extends TemplateEventT<Template>>(
+    event: Event,
+  ): Item<Template, Event>[] {
+    return this._listeners[event] ?? [];
   }
 
-  public listeners(event: "error"): EventEmitter.DefaultListener[];
-  public listeners<K extends EventEmitter.Event<Events>>(
-    event: K,
-  ): Array<EventEmitter.Listener<Events, K>>;
-  public listeners(event: string | symbol) {
-    const listeners = this.rawListeners(event as any);
+  public listeners<Event extends TemplateEventT<Template>>(
+    event: Event,
+  ): TemplateListenerT<Template, Event>[] {
+    const listeners = this.rawListeners(event);
     const length = listeners.length;
 
     if (!length) return [];
@@ -131,19 +57,17 @@ class EventEmitter<Events extends EventTemplate = EventTemplate> {
     return ret;
   }
 
-  public listenerCount(event: "error"): number;
-  public listenerCount<K extends EventEmitter.Event<Events>>(event: K): number;
-  public listenerCount(event: string | symbol) {
-    return this.rawListeners(event as any).length;
+  public listenerCount<Event extends TemplateEventT<Template>>(
+    event: Event,
+  ): number {
+    return this.rawListeners(event).length;
   }
 
-  public emit(event: "error", error: Error): boolean;
-  public emit<K extends EventEmitter.Event<Events>>(
-    event: K,
-    ...args: EventEmitter.EmitArgs<Events[K]>
-  ): boolean;
-  public emit(event: string | symbol, ...args: any[]) {
-    const listeners = this.rawListeners(event as any);
+  public emit<Event extends TemplateEventT<Template>>(
+    event: Event,
+    ...args: TemplateListenerArgsT<Template, Event>
+  ): boolean {
+    const listeners = this.rawListeners(event);
     const length = listeners.length;
 
     if (!length) {
@@ -155,7 +79,7 @@ class EventEmitter<Events extends EventTemplate = EventTemplate> {
     for (let i = 0; i < length; i++) {
       const { listener, context, once } = listeners[i];
 
-      if (once) this.removeListener(event as any, listener as any);
+      if (once) this.removeListener(event, listener);
 
       listener.apply(context, args);
     }
@@ -163,115 +87,59 @@ class EventEmitter<Events extends EventTemplate = EventTemplate> {
     return true;
   }
 
-  public addListener(
-    event: "error",
-    listener: (error: Error) => void,
-    context?: any,
-  ): this;
-  public addListener<K extends EventEmitter.Event<Events>>(
-    event: K,
-    listener: EventEmitter.Listener<Events, K>,
-    context?: any,
-  ): this;
-  public addListener(
-    event: string | symbol,
-    listener: EventEmitter.DefaultListener,
-    context?: any,
-  ) {
-    return addListener(this, event, listener, context, false, false);
+  public addListener<Event extends TemplateEventT<Template>>(
+    event: Event,
+    listener: TemplateListenerT<Template, Event>,
+    context?: unknown,
+  ): this {
+    return this._addListener(event, listener, context, false, false);
   }
 
-  public once(
-    event: "error",
-    listener: (error: Error) => void,
-    context?: any,
-  ): this;
-  public once<K extends EventEmitter.Event<Events>>(
-    event: K,
-    listener: EventEmitter.Listener<Events, K>,
-    context?: any,
-  ): this;
-  public once(
-    event: string | symbol,
-    listener: EventEmitter.DefaultListener,
-    context?: any,
-  ) {
-    return addListener(this, event, listener, context, false, true);
+  public once<Event extends TemplateEventT<Template>>(
+    event: Event,
+    listener: TemplateListenerT<Template, Event>,
+    context?: unknown,
+  ): this {
+    return this._addListener(event, listener, context, false, true);
   }
 
-  public prependListener(
-    event: "error",
-    listener: (error: Error) => void,
-    context?: any,
-  ): this;
-  public prependListener<K extends EventEmitter.Event<Events>>(
-    event: K,
-    listener: EventEmitter.Listener<Events, K>,
-    context?: any,
-  ): this;
-  public prependListener(
-    event: string | symbol,
-    listener: EventEmitter.DefaultListener,
-    context?: any,
-  ) {
-    return addListener(this, event, listener, context, true, false);
+  public prependListener<Event extends TemplateEventT<Template>>(
+    event: Event,
+    listener: TemplateListenerT<Template, Event>,
+    context?: unknown,
+  ): this {
+    return this._addListener(event, listener, context, true, false);
   }
 
-  public prependOnceListener(
-    event: "error",
-    listener: (error: Error) => void,
-    context?: any,
-  ): this;
-  public prependOnceListener<K extends EventEmitter.Event<Events>>(
-    event: K,
-    listener: EventEmitter.Listener<Events, K>,
-    context?: any,
-  ): this;
-  public prependOnceListener(
-    event: string | symbol,
-    listener: EventEmitter.DefaultListener,
-    context?: any,
-  ) {
-    return addListener(this, event, listener, context, true, true);
+  public prependOnceListener<Event extends TemplateEventT<Template>>(
+    event: Event,
+    listener: TemplateListenerT<Template, Event>,
+    context?: unknown,
+  ): this {
+    return this._addListener(event, listener, context, true, true);
   }
 
-  public removeAllListeners(event?: "error"): this;
-  public removeAllListeners<K extends EventEmitter.Event<Events>>(
-    event: K,
-  ): this;
-  public removeAllListeners(event?: string | symbol) {
-    assert(
-      event === undefined ||
-        typeof event === "string" ||
-        typeof event === "symbol",
-      "'event' must be an string, symbol or undefined",
-    );
-
+  public removeAllListeners<Event extends TemplateEventT<Template>>(
+    event?: Event,
+  ): this {
     if (event === undefined) {
       this._listeners = {};
 
       return this;
     }
 
-    if (!this._listeners[event as string]) return this;
+    if (!this._listeners[event]) return this;
 
-    this._listeners[event as string] = undefined;
+    this._listeners[event] = undefined;
 
     return this;
   }
 
-  public removeListener(event: "error", listener: (error: Error) => void): this;
-  public removeListener<K extends EventEmitter.Event<Events>>(
-    event: K,
-    listener: EventEmitter.Listener<Events, K>,
-  ): this;
-  public removeListener(
-    event: string | symbol,
-    listener: EventEmitter.DefaultListener,
-  ) {
-    assertListener(listener);
-
-    let listeners = this.rawListeners(event as any);
+  public removeListener<Event extends TemplateEventT<Template>>(
+    event: Event,
+    listener: TemplateListenerT<Template, Event>,
+  ): this {
+    let listeners = this.rawListeners(event);
     const length = listeners.length;
 
     if (!length) return this;
@@ -279,7 +147,7 @@ class EventEmitter<Events extends EventTemplate = EventTemplate> {
     if (length === 1) {
       if (listener !== listeners[0].listener) return this;
 
-      this._listeners[event as string] = undefined;
+      this._listeners[event] = undefined;
 
       return this;
     }
@@ -296,10 +164,28 @@ class EventEmitter<Events extends EventTemplate = EventTemplate> {
     if (index === 0) listeners.shift();
     else listeners.splice(index, 1);
 
-    this._listeners[event as string] = listeners;
+    this._listeners[event] = listeners;
+
+    return this;
+  }
+
+  protected _addListener<Event extends TemplateEventT<Template>>(
+    event: Event,
+    listener: TemplateListenerT<Template, Event>,
+    context: unknown = this,
+    prepend: boolean,
+    once: boolean,
+  ): this {
+    const item = new Item<Template, Event>(listener, context, once);
+    const listeners = this._listeners;
+
+    if (listeners[event]) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (prepend) listeners[event]!.unshift(item);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      else listeners[event]!.push(item);
+    } else listeners[event] = [item];
 
     return this;
   }
 }
-
-export default EventEmitter;

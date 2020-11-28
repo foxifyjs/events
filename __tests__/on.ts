@@ -1,15 +1,19 @@
-import { EventEmitter } from "../src";
+import EventEmitter from "../src";
 
-it("throws an error if the listener is not a function", () => {
+it("should listen to all the emits", () => {
   const e = new EventEmitter();
+  let calls = 0;
 
-  try {
-    e.on("foo", "bar" as any);
-  } catch (ex) {
-    expect(ex).toBeInstanceOf(TypeError);
-    expect(ex.message).toBe("'listener' must be a function");
-    return;
-  }
+  e.on("foo", () => {
+    calls++;
+  });
 
-  throw new Error("oops");
+  e.emit("foo");
+  e.emit("foo");
+  e.emit("foo");
+  e.emit("foo");
+  e.emit("foo");
+
+  expect(e.listeners("foo").length).toBe(1);
+  expect(calls).toBe(5);
 });

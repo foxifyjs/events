@@ -1,6 +1,6 @@
-import { EventEmitter } from "../src";
+import EventEmitter from "../src";
 
-it("should work with ES6 symbols", done => {
+it("should work with ES6 symbols", (done) => {
   const e = new EventEmitter();
   const event = Symbol("cows");
   const unknown = Symbol("moo");
@@ -10,7 +10,7 @@ it("should work with ES6 symbols", done => {
     expect(e.listeners(unknown)).toEqual([]);
     expect(arg).toBe("bar");
 
-    function bar(onced: any) {
+    function bar(onced: unknown) {
       expect(e.listenerCount(unknown)).toBe(0);
       expect(e.listeners(unknown)).toEqual([]);
       expect(onced).toBe("foo");

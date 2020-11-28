@@ -1,19 +1,16 @@
-import { EventEmitter } from "../src";
+import EventEmitter from "../src";
 
 it("removes only the first listener matching the specified listener", () => {
   const e = new EventEmitter();
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  function foo() {
-  }
+  function foo() {}
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  function bar() {
-  }
+  function bar() {}
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  function baz() {
-  }
+  function baz() {}
 
   e.on("foo", foo);
   e.on("bar", bar);

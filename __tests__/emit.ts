@@ -1,4 +1,4 @@
-import { EventEmitter } from "../src";
+import EventEmitter from "../src";
 
 it("should return false when there are not events to emit", () => {
   const e = new EventEmitter();
@@ -7,13 +7,13 @@ it("should return false when there are not events to emit", () => {
   expect(e.emit("bar")).toBe(false);
 });
 
-it("should emit with context", done => {
+it("should emit with context", (done) => {
   const context = { bar: "baz" };
   const e = new EventEmitter();
 
   e.on(
     "foo",
-    function(this: any, bar) {
+    function (this: unknown, bar) {
       expect(bar).toBe("bar");
       expect(this).toEqual(context);
 
@@ -23,13 +23,13 @@ it("should emit with context", done => {
   ).emit("foo", "bar");
 });
 
-it("should emit with context, multiple arguments (force apply)", done => {
+it("should emit with context, multiple arguments (force apply)", (done) => {
   const context = { bar: "baz" };
   const e = new EventEmitter();
 
   e.on(
     "foo",
-    function(this: any, bar) {
+    function (this: unknown, bar) {
       expect(bar).toBe("bar");
       expect(this).toEqual(context);
 
@@ -43,14 +43,14 @@ it("should be able to emit the function with multiple arguments", () => {
   const e = new EventEmitter();
 
   for (let i = 0; i < 100; i++) {
-    (function(j) {
-      const args: any[] = [];
+    (function (j) {
+      const args: number[] = [];
 
       for (let i = 0; i < j; i++) {
         args.push(j);
       }
 
-      e.once("args", function() {
+      e.once("args", function () {
         expect(arguments.length).toBe(args.length);
       });
 
@@ -63,14 +63,14 @@ it("should be able to emit the function with multiple arguments, multiple listen
   const e = new EventEmitter();
 
   for (let i = 0; i < 100; i++) {
-    (function(j) {
-      const args: any[] = [];
+    (function (j) {
+      const args: number[] = [];
 
       for (let i = 0; i < j; i++) {
         args.push(j);
       }
 
-      e.once("args", function() {
+      e.once("args", function () {
         expect(arguments.length).toBe(args.length);
       });
 
@@ -84,7 +84,7 @@ it("should be able to emit with context, multiple listeners (force loop)", () =>
 
   e.on(
     "foo",
-    function(this: any, bar) {
+    function (this: unknown, bar) {
       expect(this).toEqual({ foo: "bar" });
       expect(bar).toBe("bar");
     },
@@ -93,7 +93,7 @@ it("should be able to emit with context, multiple listeners (force loop)", () =>
 
   e.on(
     "foo",
-    function(this: any, bar) {
+    function (this: unknown, bar) {
       expect(this).toEqual({ bar: "baz" });
       expect(bar).toBe("bar");
     },
@@ -107,7 +107,7 @@ it("should be able to emit with different contexts", () => {
   const e = new EventEmitter();
   let pattern = "";
 
-  function writer(this: any) {
+  function writer(this: unknown) {
     pattern += this;
   }
 
@@ -123,7 +123,7 @@ it("should return true when there are events to emit", () => {
   const e = new EventEmitter();
   let called = 0;
 
-  e.on("foo", function() {
+  e.on("foo", function () {
     called++;
   });
 
@@ -132,10 +132,10 @@ it("should return true when there are events to emit", () => {
   expect(called).toBe(1);
 });
 
-it("receives the emitted events", done => {
+it("receives the emitted events", (done) => {
   const e = new EventEmitter();
 
-  e.on("data", function(a, b, c, d, undef) {
+  e.on("data", function (a, b, c, d, undef) {
     expect(a).toBe("foo");
     expect(b).toEqual(e);
     expect(c).toBeInstanceOf(Date);
@@ -152,11 +152,11 @@ it("emits to all event listeners", () => {
   const e = new EventEmitter();
   const pattern: string[] = [];
 
-  e.on("foo", function() {
+  e.on("foo", function () {
     pattern.push("foo1");
   });
 
-  e.on("foo", function() {
+  e.on("foo", function () {
     pattern.push("foo2");
   });
 
