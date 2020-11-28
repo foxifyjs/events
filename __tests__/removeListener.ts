@@ -3,9 +3,17 @@ import { EventEmitter } from "../src";
 it("removes only the first listener matching the specified listener", () => {
   const e = new EventEmitter();
 
-  function foo() {}
-  function bar() {}
-  function baz() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  function foo() {
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  function bar() {
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  function baz() {
+  }
 
   e.on("foo", foo);
   e.on("bar", bar);

@@ -47,6 +47,7 @@ export type EventTemplate = {
   [Event in string | symbol]: (...args: unknown[]) => void
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace EventEmitter {
   export type DefaultListener = (...args: any[]) => void;
 

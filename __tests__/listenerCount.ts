@@ -5,11 +5,15 @@ it("returns the number of listeners for a given event", () => {
 
   expect(e.listenerCount("foo")).toBe(0);
 
-  e.on("foo", function() {});
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  e.on("foo", function() {
+  });
 
   expect(e.listenerCount("foo")).toBe(1);
 
-  e.on("foo", function() {});
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  e.on("foo", function() {
+  });
 
   expect(e.listenerCount("foo")).toBe(2);
 });

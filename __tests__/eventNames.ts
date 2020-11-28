@@ -5,7 +5,9 @@ it("returns an empty array when there are no events", () => {
 
   expect(e.eventNames()).toEqual([]);
 
-  e.on("foo", () => {});
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  e.on("foo", () => {
+  });
   e.removeAllListeners("foo");
 
   expect(e.eventNames()).toEqual([]);
@@ -14,16 +16,16 @@ it("returns an empty array when there are no events", () => {
 it("returns an array listing the events that have listeners", () => {
   const e = new EventEmitter();
 
-  function bar() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  function bar() {
+  }
 
-  e.on("foo", () => {});
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  e.on("foo", () => {
+  });
   e.on("bar", bar);
 
-  try {
-    expect(e.eventNames()).toEqual(["foo", "bar"]);
-    e.removeListener("bar", bar);
-    expect(e.eventNames()).toEqual(["foo"]);
-  } catch (ex) {
-    throw ex;
-  }
+  expect(e.eventNames()).toEqual(["foo", "bar"]);
+  e.removeListener("bar", bar);
+  expect(e.eventNames()).toEqual(["foo"]);
 });

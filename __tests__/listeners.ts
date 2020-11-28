@@ -10,7 +10,9 @@ it("returns an empty array if no listeners are specified", () => {
 it("returns an array of function", () => {
   const e = new EventEmitter();
 
-  function foo() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  function foo() {
+  }
 
   e.on("foo", foo);
 
@@ -22,7 +24,9 @@ it("returns an array of function", () => {
 it("is not vulnerable to modifications", () => {
   const e = new EventEmitter();
 
-  function foo() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  function foo() {
+  }
 
   e.on("foo", foo);
 

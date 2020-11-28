@@ -135,7 +135,6 @@ it("should return true when there are events to emit", () => {
 it("receives the emitted events", done => {
   const e = new EventEmitter();
 
-  // @ts-ignore
   e.on("data", function(a, b, c, d, undef) {
     expect(a).toBe("foo");
     expect(b).toEqual(e);
