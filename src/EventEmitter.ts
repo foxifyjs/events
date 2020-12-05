@@ -220,6 +220,5 @@ export default EventEmitter;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isArray(value: any): value is any[] {
-  // return typeof value.length === "number";
   return value.length !== undefined;
 }

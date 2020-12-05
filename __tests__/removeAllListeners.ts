@@ -54,3 +54,9 @@ it("removes all events, literally!", () => {
   expect(e.emit("bar")).toBe(false);
   expect(e.emit("aaa")).toBe(false);
 });
+
+it("should not fail if the events don't exist", () => {
+  const e = new EventEmitter();
+
+  expect(e.removeAllListeners("not-found")).toEqual(e);
+});

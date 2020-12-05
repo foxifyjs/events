@@ -172,3 +172,11 @@ it("emits to all event listeners", () => {
 
   expect(pattern.join(";")).toBe("foo1;foo2");
 });
+
+it("should throw the error", () => {
+  const e = new EventEmitter();
+
+  const error = new Error("test");
+
+  expect(() => e.emit("error", error)).toThrow(error);
+});

@@ -15,9 +15,16 @@ it("returns an array of function", () => {
 
   e.on("foo", foo);
 
-  expect(e.listeners("foo")).toBeInstanceOf(Array);
-  expect(e.listeners("foo").length).toBe(1);
-  expect(e.listeners("foo")).toEqual([foo]);
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  function bar() {}
+
+  e.on("foo", bar);
+
+  const listeners = e.listeners("foo");
+
+  expect(listeners).toBeInstanceOf(Array);
+  expect(listeners.length).toBe(2);
+  expect(listeners).toEqual([foo, bar]);
 });
 
 it("is not vulnerable to modifications", () => {

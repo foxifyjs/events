@@ -1,4 +1,4 @@
-# Events <!-- omit in toc -->
+# Events
 
 `@foxify/events` is a high performance EventEmitter alternative for Node.js and browser that has been optimized to be faster than the native version, (why not?!).
 
@@ -35,6 +35,8 @@ This module is API compatible with the EventEmitter that ships by default with N
   - [Strict events](#strict-events)
   - [Contextual emits](#contextual-emits)
 - [Benchmarks](#benchmarks)
+- [Tests](#tests)
+- [Coverage](#coverage)
 - [Versioning](#versioning)
 - [Authors](#authors)
 - [License](#license)
@@ -47,8 +49,16 @@ npm i @foxify/events
 
 ## Usage
 
+JavaScript:
+
 ```js
-const { EventEmitter } = require("@foxify/events");
+const EventEmitter = require("@foxify/events").default;
+```
+
+TypeScript:
+
+```ts
+import EventEmitter from "@foxify/events";
 ```
 
 For the API documentation, please follow the official Node.js [documentation](https://nodejs.org/api/events.html).
@@ -71,14 +81,14 @@ class Emitter extends EventEmitter<Events> {
 
 const eventEmitter = new Emitter();
 
-// Throws an error, since this event requires the "bar" argument of type "string"
+// Works just fine. so don't worry about "ImplicitAny" config, since type of "bar" is defined as "string"
+eventEmitter.on("foo", bar => 1);
+
+// Throws an error (TS compile time), since this event requires the "bar" argument of type "string"
 eventEmitter.emit("foo");
 
 // Works just fine
-eventEmitter.emit("foo");
-
-// Works just fine. so don't worry about "ImplicitAny" config, since type of "bar" is defined as "string"
-eventEmitter.on("foo", bar => 1);
+eventEmitter.emit("foo", "bar");
 
 ```
 
@@ -107,8 +117,20 @@ eventEmitter.prependOnceListener("event:5", emitted, context);
 
 ## Benchmarks
 
-```bash
+```shell
 npm run benchmarks
+```
+
+## Tests
+
+```shell
+npm test
+```
+
+## Coverage
+
+```shell
+npm run coverage
 ```
 
 ## Versioning

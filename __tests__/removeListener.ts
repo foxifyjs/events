@@ -38,3 +38,9 @@ it("removes only the first listener matching the specified listener", () => {
   expect(e.listeners("bar")).toEqual([bar]);
   expect(e.listeners("foo")).toEqual([]);
 });
+
+it("should not fail if the events don't exist", () => {
+  const e = new EventEmitter();
+
+  expect(e.removeListener("not-found", () => 1)).toEqual(e);
+});
