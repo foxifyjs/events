@@ -3,7 +3,7 @@ const { EventEmitter } = require("events");
 const { EventEmitter2 } = require("eventemitter2");
 const EventEmitter3 = require("eventemitter3");
 const { EventEmitter: DripEmitter } = require("drip");
-const { EventEmitter: FoxifyEmitter } = require("..");
+const FoxifyEmitter = require("..").default;
 
 function handle() {
   return 1;
@@ -18,7 +18,7 @@ const foxifyEmitter = new FoxifyEmitter();
 eventEmitter.setMaxListeners(25);
 eventEmitter2.setMaxListeners(25);
 
-for(let i = 0; i < 25; i++) {
+for (let i = 0; i < 25; i++) {
   eventEmitter.on("foo", handle);
   eventEmitter2.on("foo", handle);
   eventEmitter3.on("foo", handle);
@@ -42,10 +42,10 @@ new Suite()
   .add("drip", () => {
     dripEmitter.listeners("foo");
   })
-  .on("cycle", e => {
+  .on("cycle", (e) => {
     console.log(e.target.toString());
   })
   .on("complete", function onComplete() {
     console.log("Fastest is %s", this.filter("fastest").map("name"));
   })
-  .run({ async: true });
+  .run();

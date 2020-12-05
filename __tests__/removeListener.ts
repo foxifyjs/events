@@ -36,5 +36,5 @@ it("removes only the first listener matching the specified listener", () => {
 
   expect(e.removeListener("foo", foo)).toEqual(e);
   expect(e.listeners("bar")).toEqual([bar]);
-  expect(e.listeners("foo")).toEqual([foo]);
+  expect(e.listeners("foo")).toEqual([]);
 });

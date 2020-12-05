@@ -3,7 +3,7 @@ const { EventEmitter } = require("events");
 const { EventEmitter2 } = require("eventemitter2");
 const EventEmitter3 = require("eventemitter3");
 const { EventEmitter: DripEmitter } = require("drip");
-const { EventEmitter: FoxifyEmitter } = require("..");
+const FoxifyEmitter = require("..").default;
 
 function handle() {
   return 1;
@@ -51,10 +51,10 @@ new Suite()
       dripEmitter.emit(`event:${i}`);
     }
   })
-  .on("cycle", e => {
+  .on("cycle", (e) => {
     console.log(e.target.toString());
   })
   .on("complete", function onComplete() {
     console.log("Fastest is %s", this.filter("fastest").map("name"));
   })
-  .run({ async: true });
+  .run();

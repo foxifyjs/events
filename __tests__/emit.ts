@@ -8,6 +8,8 @@ it("should return false when there are not events to emit", () => {
 });
 
 it("should emit with context", (done) => {
+  expect.assertions(3);
+
   const context = { bar: "baz" };
   const e = new EventEmitter();
 
@@ -20,10 +22,14 @@ it("should emit with context", (done) => {
       done();
     },
     context,
-  ).emit("foo", "bar");
+  );
+
+  expect(e.emit("foo", "bar")).toBe(true);
 });
 
 it("should emit with context, multiple arguments (force apply)", (done) => {
+  expect.assertions(3);
+
   const context = { bar: "baz" };
   const e = new EventEmitter();
 
@@ -36,7 +42,9 @@ it("should emit with context, multiple arguments (force apply)", (done) => {
       done();
     },
     context,
-  ).emit("foo", "bar", 1, 2, 3, 4, 5, 6, 7, 8, 9, 0);
+  );
+
+  expect(e.emit("foo", "bar", 1, 2, 3, 4, 5, 6, 7, 8, 9, 0)).toBe(true);
 });
 
 it("should be able to emit the function with multiple arguments", () => {

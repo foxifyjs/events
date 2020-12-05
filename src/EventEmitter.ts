@@ -7,21 +7,21 @@ import type {
 } from "./constants";
 import Item from "./Item";
 
-export default class EventEmitter<
-  Template extends EventTemplateT = EventTemplateT
-> {
-  protected _listeners: ListenersT<Template> = {};
-
-  public on: <Event extends TemplateEventT<Template>>(
+interface EventEmitter<Template extends EventTemplateT = EventTemplateT> {
+  on<Event extends TemplateEventT<Template>>(
     event: Event,
     listener: TemplateListenerT<Template, Event>,
     context?: unknown,
-  ) => this;
+  ): this;
 
-  public off: <Event extends TemplateEventT<Template>>(
+  off<Event extends TemplateEventT<Template>>(
     event: Event,
     listener: TemplateListenerT<Template, Event>,
-  ) => this;
+  ): this;
+}
+
+class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
+  protected _listeners: ListenersT<Template> = {};
 
   constructor() {
     this.on = this.addListener;
@@ -31,13 +31,21 @@ export default class EventEmitter<
   public eventNames(): TemplateEventT<Template>[] {
     const listeners = this._listeners;
 
-    return Object.keys(listeners).filter((event) => listeners[event] != null);
+    return Object.keys(listeners).filter(
+      (event) => listeners[event] !== undefined,
+    );
   }
 
   public rawListeners<Event extends TemplateEventT<Template>>(
     event: Event,
   ): Item<Template, Event>[] {
-    return this._listeners[event] ?? [];
+    const listeners = this._listeners[event];
+
+    if (listeners === undefined) return [];
+
+    if (isArray(listeners)) return listeners;
+
+    return [listeners as Item<Template, Event>];
   }
 
   public listeners<Event extends TemplateEventT<Template>>(
@@ -67,19 +75,37 @@ export default class EventEmitter<
     event: Event,
     ...args: TemplateListenerArgsT<Template, Event>
   ): boolean {
-    const listeners = this.rawListeners(event);
-    const length = listeners.length;
+    const listeners = this._listeners[event];
 
-    if (!length) {
+    if (listeners === undefined) {
       if (event === "error") throw args[0];
 
       return false;
     }
 
-    for (let i = 0; i < length; i++) {
-      const { listener, context, once } = listeners[i];
+    if (isArray(listeners)) {
+      let length = listeners.length;
 
-      if (once) this.removeListener(event, listener);
+      for (let i = 0; i < length; i++) {
+        const { listener, context, once } = listeners[i];
+
+        if (once) {
+          listeners.splice(i--, 1);
+          length--;
+        }
+
+        listener.apply(context, args);
+      }
+
+      if (length === 0) {
+        this._listeners[event] = undefined;
+      } else if (length === 1) {
+        this._listeners[event] = listeners[0];
+      }
+    } else {
+      const { listener, context, once } = listeners as Item<Template, Event>;
+
+      if (once) this._listeners[event] = undefined;
 
       listener.apply(context, args);
     }
@@ -128,7 +154,7 @@ export default class EventEmitter<
       return this;
     }
 
-    if (!this._listeners[event]) return this;
+    if (this._listeners[event] === undefined) return this;
 
     this._listeners[event] = undefined;
 
@@ -139,32 +165,23 @@ export default class EventEmitter<
     event: Event,
     listener: TemplateListenerT<Template, Event>,
   ): this {
-    let listeners = this.rawListeners(event);
-    const length = listeners.length;
+    const listeners = this._listeners[event];
 
-    if (!length) return this;
+    if (listeners === undefined) return this;
 
-    if (length === 1) {
-      if (listener !== listeners[0].listener) return this;
+    if (isArray(listeners)) {
+      for (let index = listeners.length - 1; index >= 0; index--) {
+        if (listeners[index].listener === listener) listeners.splice(index, 1);
+      }
 
+      if (listeners.length === 0) {
+        this._listeners[event] = undefined;
+      } else if (listeners.length === 1) {
+        this._listeners[event] = listeners[0];
+      }
+    } else if (listener === listeners.listener) {
       this._listeners[event] = undefined;
-
-      return this;
     }
-
-    listeners = listeners.slice(0);
-
-    let index = length - 1;
-    for (; index >= 0; index--) {
-      if (listeners[index].listener === listener) break;
-    }
-
-    if (index < 0) return this;
-
-    if (index === 0) listeners.shift();
-    else listeners.splice(index, 1);
-
-    this._listeners[event] = listeners;
 
     return this;
   }
@@ -179,13 +196,30 @@ export default class EventEmitter<
     const item = new Item<Template, Event>(listener, context, once);
     const listeners = this._listeners;
 
-    if (listeners[event]) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (prepend) listeners[event]!.unshift(item);
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      else listeners[event]!.push(item);
-    } else listeners[event] = [item];
+    if (listeners[event] === undefined) {
+      listeners[event] = item;
+    } else if (isArray(listeners[event])) {
+      if (prepend) {
+        (listeners[event] as Item<Template, Event>[]).unshift(item);
+      } else {
+        (listeners[event] as Item<Template, Event>[]).push(item);
+      }
+    } else {
+      if (prepend) {
+        listeners[event] = [item, listeners[event] as Item<Template, Event>];
+      } else {
+        listeners[event] = [listeners[event] as Item<Template, Event>, item];
+      }
+    }
 
     return this;
   }
+}
+
+export default EventEmitter;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isArray(value: any): value is any[] {
+  // return typeof value.length === "number";
+  return value.length !== undefined;
 }

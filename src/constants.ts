@@ -37,5 +37,7 @@ export type TemplateListenerArgsT<
 > = ListenerArgsT<TemplateT<Template>[Event]>;
 
 export type ListenersT<Template extends EventTemplateT> = {
-  [Event in TemplateEventT<Template>]?: Item<Template, Event>[];
+  [Event in TemplateEventT<Template>]?:
+    | Item<Template, Event>
+    | Item<Template, Event>[];
 };
