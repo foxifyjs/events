@@ -3,6 +3,7 @@ const { EventEmitter } = require("events");
 const { EventEmitter2 } = require("eventemitter2");
 const EventEmitter3 = require("eventemitter3");
 const { EventEmitter: DripEmitter } = require("drip");
+const { EventEmitter: FoxifyEmitterV1 } = require("eventsV1");
 const FoxifyEmitter = require("..").default;
 
 function handle() {
@@ -13,12 +14,14 @@ const eventEmitter = new EventEmitter();
 const eventEmitter2 = new EventEmitter2();
 const eventEmitter3 = new EventEmitter3();
 const dripEmitter = new DripEmitter();
+const foxifyEmitterV1 = new FoxifyEmitterV1();
 const foxifyEmitter = new FoxifyEmitter();
 
 eventEmitter.on("foo", handle);
 eventEmitter2.on("foo", handle);
 eventEmitter3.on("foo", handle);
 dripEmitter.on("foo", handle);
+foxifyEmitterV1.on("foo", handle);
 foxifyEmitter.on("foo", handle);
 
 new Suite()
@@ -27,6 +30,9 @@ new Suite()
   })
   .add("@foxify/events", () => {
     foxifyEmitter.emit("foo");
+  })
+  .add("@foxify/events (v1)", () => {
+    foxifyEmitterV1.emit("foo");
   })
   .add("eventemitter2", () => {
     eventEmitter2.emit("foo");

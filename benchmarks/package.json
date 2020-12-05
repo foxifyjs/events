@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "devDependencies": {
+    "benchmark": "^2.1.4",
+    "drip": "^1.4.0",
+    "eventemitter2": "^6.4.3",
+    "eventemitter3": "^4.0.7",
+    "eventsV1": "npm:@foxify/events@^1.1.4"
+  }
+}

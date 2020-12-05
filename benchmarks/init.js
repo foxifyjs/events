@@ -3,6 +3,7 @@ const { EventEmitter } = require("events");
 const { EventEmitter2 } = require("eventemitter2");
 const EventEmitter3 = require("eventemitter3");
 const { EventEmitter: DripEmitter } = require("drip");
+const { EventEmitter: FoxifyEmitterV1 } = require("eventsV1");
 const FoxifyEmitter = require("..").default;
 
 new Suite()
@@ -11,6 +12,9 @@ new Suite()
   })
   .add("@foxify/events", () => {
     const emitter = new FoxifyEmitter();
+  })
+  .add("@foxify/events (v1)", () => {
+    const emitter = new FoxifyEmitterV1();
   })
   .add("eventemitter2", () => {
     const emitter = new EventEmitter2();
