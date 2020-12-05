@@ -41,7 +41,7 @@
     "lint": "eslint src __tests__",
     "test": "jest",
     "coverage": "npm test -- --coverage",
-    "benchmarks": "find benchmarks -name '*.js' -exec benchmarks/start.sh {} \\;"
+    "benchmarks": "find benchmarks -maxdepth 1 -name '*.js' -exec benchmarks/start.sh {} \\;"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",
