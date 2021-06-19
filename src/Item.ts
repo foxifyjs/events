@@ -6,7 +6,7 @@ import type {
 
 export default class Item<
   Template extends EventTemplateT,
-  Event extends TemplateEventT<Template>
+  Event extends TemplateEventT<Template>,
 > {
   constructor(
     public readonly listener: TemplateListenerT<Template, Event>,

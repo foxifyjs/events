@@ -23,17 +23,17 @@ export type TemplateT<Template extends EventTemplateT> = Template & {
 };
 
 export type TemplateEventT<
-  Template extends EventTemplateT
+  Template extends EventTemplateT,
 > = keyof TemplateT<Template>;
 
 export type TemplateListenerT<
   Template extends EventTemplateT,
-  Event extends TemplateEventT<Template>
+  Event extends TemplateEventT<Template>,
 > = (...args: TemplateListenerArgsT<Template, Event>) => void;
 
 export type TemplateListenerArgsT<
   Template extends EventTemplateT,
-  Event extends TemplateEventT<Template>
+  Event extends TemplateEventT<Template>,
 > = ListenerArgsT<TemplateT<Template>[Event]>;
 
 export type ListenersT<Template extends EventTemplateT> = {

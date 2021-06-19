@@ -1,10 +1,4 @@
-import type {
-  EventTemplateT,
-  TemplateListenerArgsT,
-  TemplateEventT,
-  TemplateListenerT,
-  ListenersT,
-} from "./constants";
+import type { EventTemplateT, ListenersT, TemplateEventT, TemplateListenerArgsT, TemplateListenerT } from "./constants";
 import Item from "./Item";
 
 interface EventEmitter<Template extends EventTemplateT = EventTemplateT> {
