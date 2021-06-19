@@ -1,34 +1,29 @@
 # Events
 
-`@foxify/events` is a high performance EventEmitter alternative for Node.js and browser that has been optimized to be faster than the native version, (why not?!).
+`@foxify/events` is a `EventEmitter` alternative for `Node.js` and `browser` that has been optimized for better
+performance compared to the native version.
 
-[![NPM Version](https://img.shields.io/npm/v/@foxify/events.svg)](https://www.npmjs.com/package/@foxify/events)
-[![TypeScript Version](https://img.shields.io/npm/types/@foxify/events.svg)](https://www.typescriptlang.org)
-[![npm bundle size (minified)](https://img.shields.io/bundlephobia/min/@foxify/events.svg)](https://www.npmjs.com/package/@foxify/events)
-[![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/@foxify/events.svg)](https://www.npmjs.com/package/@foxify/events)
-[![Tested With Jest](https://img.shields.io/badge/tested_with-jest-99424f.svg)](https://github.com/facebook/jest)
-[![Pull Requests](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](https://github.com/foxifyjs/events/pulls)
-[![License](https://img.shields.io/github/license/foxifyjs/events.svg)](https://github.com/foxifyjs/events/blob/master/LICENSE)
-[![Build Status](https://github.com/foxifyjs/events/workflows/Test/badge.svg)](https://github.com/foxifyjs/events/actions)
-[![Coverage Status](https://codecov.io/gh/foxifyjs/events/branch/master/graph/badge.svg)](https://codecov.io/gh/foxifyjs/events)
-[![Package Quality](http://npm.packagequality.com/shield/%40foxify%2Fodin.svg)](http://packagequality.com/#?package=@foxify/events)
-[![Dependencies Status](https://david-dm.org/foxifyjs/events.svg)](https://david-dm.org/foxifyjs/events)
-[![NPM Total Downloads](https://img.shields.io/npm/dt/@foxify/events.svg)](https://www.npmjs.com/package/@foxify/events)
-[![NPM Monthly Downloads](https://img.shields.io/npm/dm/@foxify/events.svg)](https://www.npmjs.com/package/@foxify/events)
-[![Open Issues](https://img.shields.io/github/issues-raw/foxifyjs/events.svg)](https://github.com/foxifyjs/events/issues?q=is%3Aopen+is%3Aissue)
-[![Closed Issues](https://img.shields.io/github/issues-closed-raw/foxifyjs/events.svg)](https://github.com/foxifyjs/events/issues?q=is%3Aissue+is%3Aclosed)
-[![known vulnerabilities](https://snyk.io/test/github/foxifyjs/events/badge.svg?targetFile=package.json)](https://snyk.io/test/github/foxifyjs/events?targetFile=package.json)
-[![Github Stars](https://img.shields.io/github/stars/foxifyjs/events.svg?style=social)](https://github.com/foxifyjs/events)
-[![Github Forks](https://img.shields.io/github/forks/foxifyjs/events.svg?style=social&label=Fork)](https://github.com/foxifyjs/events)
+[![Build Status][BUILD_BADGE]][BUILD_URI]
+[![Coverage Status][COVERAGE_BADGE]][COVERAGE_URI]
+[![NPM Version][VERSION_BADGE]][NPM_URI]
+[![npm bundle size (minified)][MINIFIED_BADGE]][NPM_URI]
+[![npm bundle size (minified + gzip)][GZIP_BADGE]][NPM_URI]
+[![NPM Monthly Downloads][MONTHLY_DOWNLOADS_BADGE]][NPM_URI]
+[![NPM Total Downloads][TOTAL_DOWNLOADS_BADGE]][NPM_URI]
+[![Dependencies Status][DEPENDENCY_STATUS_BADGE]][DEPENDENCY_STATUS_URI]
+[![Open Issues][OPEN_ISSUES_BADGE]][OPEN_ISSUES_URI]
+[![Pull Requests][PR_BADGE]][PR_URI]
+[![License][LICENSE_BADGE]][LICENSE_URI]
 
-This module is API compatible with the EventEmitter that ships by default with Node.js but there are some slight differences:
+This module is API compatible with the `EventEmitter` that ships by default with Node.js but there are some slight
+differences:
 
 - The `newListener` and `removeListener` events have been removed as they are useful only in some uncommon use-cases.
 - The `setMaxListeners` and `getMaxListeners` methods are not available.
 - Support for custom context for events so there is no need to use `bind`.
-- Support for strict events in TypeScript.
+- Support for strict events in `TypeScript`.
 
-## Table of Contents <!-- omit in toc -->
+## Table of Contents
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -43,7 +38,7 @@ This module is API compatible with the EventEmitter that ships by default with N
 
 ## Installation
 
-```bash
+```shell
 npm i @foxify/events
 ```
 
@@ -51,13 +46,13 @@ npm i @foxify/events
 
 JavaScript:
 
-```js
+```javascript
 const EventEmitter = require("@foxify/events").default;
 ```
 
 TypeScript:
 
-```ts
+```typescript
 import EventEmitter from "@foxify/events";
 ```
 
@@ -67,7 +62,7 @@ For the API documentation, please follow the official Node.js [documentation](ht
 
 > "error" event is always defined by default because of its different behavior
 
-```ts
+```typescript
 interface Events {
   foo: (bar: string) => void;
 }
@@ -89,30 +84,28 @@ eventEmitter.emit("foo");
 
 // Works just fine
 eventEmitter.emit("foo", "bar");
-
 ```
 
 ### Contextual emits
 
 We've upgraded the API of the `on`, `once`, `addListener`, `prependListener` and
 `prependOnceListener` to accept an extra argument which is the `context`
-or `this` value that should be set for the emitted events. This means you no
-longer have the overhead of an event that required `bind` in order to get a
-custom `this` value.
+or `this` value that should be set for the emitted events. This means you no longer have the overhead of an event that
+required `bind` in order to get a custom `this` value.
 
-```js
+```javascript
 const eventEmitter = new EventEmitter();
 const context = { foo: "bar" };
 
-function emitted() {
+function listener() {
   console.log(this === context); // true
 }
 
-eventEmitter.on("event:1", emitted, context);
-eventEmitter.once("event:2", emitted, context);
-eventEmitter.addListener("event:3", emitted, context);
-eventEmitter.prependListener("event:4", emitted, context);
-eventEmitter.prependOnceListener("event:5", emitted, context);
+eventEmitter.on("event:1", listener, context);
+eventEmitter.once("event:2", listener, context);
+eventEmitter.addListener("event:3", listener, context);
+eventEmitter.prependListener("event:4", listener, context);
+eventEmitter.prependOnceListener("event:5", listener, context);
 ```
 
 ## Benchmarks
@@ -130,12 +123,13 @@ npm test
 ## Coverage
 
 ```shell
-npm run coverage
+npm run test:coverage
 ```
 
 ## Versioning
 
-We use [SemVer](http://semver.org) for versioning. For the versions available, see the [tags on this repository](https://github.com/foxifyjs/events/tags).
+We use [SemVer](http://semver.org) for versioning. For the versions available, see
+the [releases on this repository](https://github.com/foxifyjs/events/releases).
 
 ## Authors
 
@@ -145,4 +139,41 @@ See also the list of [contributors](https://github.com/foxifyjs/events/contribut
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE][LICENSE_URI] file for details
+
+
+[BUILD_BADGE]: https://github.com/foxifyjs/events/workflows/Test/badge.svg
+
+[BUILD_URI]: https://github.com/foxifyjs/events/actions
+
+[COVERAGE_BADGE]: https://codecov.io/gh/foxifyjs/events/branch/master/graph/badge.svg
+
+[COVERAGE_URI]: https://codecov.io/gh/foxifyjs/events
+
+[VERSION_BADGE]: https://img.shields.io/npm/v/@foxify/events.svg
+
+[MINIFIED_BADGE]: https://img.shields.io/bundlephobia/min/@foxify/events.svg
+
+[GZIP_BADGE]: https://img.shields.io/bundlephobia/minzip/@foxify/events.svg
+
+[MONTHLY_DOWNLOADS_BADGE]: https://img.shields.io/npm/dm/@foxify/events.svg
+
+[TOTAL_DOWNLOADS_BADGE]: https://img.shields.io/npm/dt/@foxify/events.svg
+
+[DEPENDENCY_STATUS_BADGE]: https://david-dm.org/foxifyjs/events.svg
+
+[DEPENDENCY_STATUS_URI]: https://david-dm.org/foxifyjs/events
+
+[OPEN_ISSUES_BADGE]: https://img.shields.io/github/issues-raw/foxifyjs/events.svg
+
+[OPEN_ISSUES_URI]: https://github.com/foxifyjs/events/issues?q=is%3Aopen+is%3Aissue
+
+[PR_BADGE]: https://img.shields.io/badge/PRs-Welcome-brightgreen.svg
+
+[PR_URI]: https://github.com/foxifyjs/events/pulls
+
+[LICENSE_BADGE]: https://img.shields.io/github/license/foxifyjs/events.svg
+
+[LICENSE_URI]: https://github.com/foxifyjs/events/blob/master/LICENSE
+
+[NPM_URI]: https://www.npmjs.com/package/@foxify/events
