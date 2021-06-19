@@ -1,5 +1,5 @@
-import type { EventTemplateT, ListenersT, TemplateEventT, TemplateListenerArgsT, TemplateListenerT } from "./constants";
-import Item from "./Item";
+import type { EventsT, EventTemplateT, TemplateEventT, TemplateListenerArgsT, TemplateListenerT } from "./constants";
+import Listener from "./Listener";
 
 interface EventEmitter<Template extends EventTemplateT = EventTemplateT> {
   on<Event extends TemplateEventT<Template>>(
@@ -15,61 +15,83 @@ interface EventEmitter<Template extends EventTemplateT = EventTemplateT> {
 }
 
 class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
-  protected _listeners: ListenersT<Template> = {};
+  protected events: EventsT<Template> = {};
 
   constructor() {
     this.on = this.addListener;
     this.off = this.removeListener;
   }
 
+  /**
+   * Returns an array listing the events for which the emitter has registered listeners.
+   */
   public eventNames(): TemplateEventT<Template>[] {
-    const listeners = this._listeners;
+    const events = this.events;
 
-    return Object.keys(listeners).filter(
-      (event) => listeners[event] !== undefined,
-    );
+    return Object.keys(events).filter((event) => events[event] !== undefined);
   }
 
+  /**
+   * Returns the array of listeners for the specified `event`.
+   *
+   * @param event
+   */
   public rawListeners<Event extends TemplateEventT<Template>>(
     event: Event,
-  ): Item<Template, Event>[] {
-    const listeners = this._listeners[event];
+  ): Listener<Template, Event>[] {
+    const listeners = this.events[event];
 
     if (listeners === undefined) return [];
 
-    if (isArray(listeners)) return listeners;
+    if (isSingleListener(listeners)) return [listeners];
 
-    return [listeners as Item<Template, Event>];
+    return listeners;
   }
 
+  /**
+   * Returns a copy of the array of listeners for the specified `event`.
+   *
+   * @param event
+   */
   public listeners<Event extends TemplateEventT<Template>>(
     event: Event,
   ): TemplateListenerT<Template, Event>[] {
     const listeners = this.rawListeners(event);
     const length = listeners.length;
 
-    if (!length) return [];
+    if (length === 0) return [];
 
-    const ret = new Array(length);
+    const result = new Array(length);
 
-    for (let i = 0; i < length; i++) {
-      ret[i] = listeners[i].listener;
-    }
+    for (let index = 0; index < length; index++) result[index] = listeners[index].fn;
 
-    return ret;
+    return result;
   }
 
+  /**
+   * Returns the number of listeners listening to the specified `event`.
+   *
+   * @param event
+   */
   public listenerCount<Event extends TemplateEventT<Template>>(
     event: Event,
   ): number {
     return this.rawListeners(event).length;
   }
 
+  /**
+   * Synchronously calls each of the listeners registered for the specified `event`, in the order they were registered, passing the supplied arguments to each.
+   *
+   * @param event
+   * @param args
+   * @returns - `true` if the `event` had listeners, `false` otherwise.
+   */
   public emit<Event extends TemplateEventT<Template>>(
     event: Event,
     ...args: TemplateListenerArgsT<Template, Event>
   ): boolean {
-    const listeners = this._listeners[event];
+    const events = this.events;
+    const listeners = events[event];
 
     if (listeners === undefined) {
       if (event === "error") throw args[0];
@@ -77,53 +99,45 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
       return false;
     }
 
-    if (isArray(listeners)) {
-      let length = listeners.length;
+    if (isSingleListener(listeners)) {
+      const { fn, context, once } = listeners;
 
-      for (let i = 0; i < length; i++) {
-        const { listener, context, once } = listeners[i];
+      if (once) events[event] = undefined;
 
-        if (once) {
-          listeners.splice(i--, 1);
-          length--;
-        }
+      fn.apply(context, args);
 
-        listener.apply(context, args);
-      }
-
-      if (length === 0) {
-        this._listeners[event] = undefined;
-      } else if (length === 1) {
-        this._listeners[event] = listeners[0];
-      }
-    } else {
-      const { listener, context, once } = listeners as Item<Template, Event>;
-
-      if (once) this._listeners[event] = undefined;
-
-      listener.apply(context, args);
+      return true;
     }
+
+    let length = listeners.length;
+
+    for (let index = 0; index < length; index++) {
+      const { fn, context, once } = listeners[index];
+
+      if (once) {
+        listeners.splice(index--, 1);
+
+        length--;
+      }
+
+      fn.apply(context, args);
+    }
+
+    if (length === 0) events[event] = undefined;
+    else if (length === 1) events[event] = listeners[0];
 
     return true;
   }
 
+  /**
+   * Adds the `listener` function to the end of the listeners array for the specified `event`. No checks are made to see if the listener has already been added.
+   * Multiple calls passing the same combination of `event` and `listener` will result in the listener being added, and called, multiple times.
+   *
+   * @param event
+   * @param listener
+   * @param context - default: `this` (EventEmitter instance)
+   */
   public addListener<Event extends TemplateEventT<Template>>(
-    event: Event,
-    listener: TemplateListenerT<Template, Event>,
-    context?: unknown,
-  ): this {
-    return this._addListener(event, listener, context, false, false);
-  }
-
-  public once<Event extends TemplateEventT<Template>>(
-    event: Event,
-    listener: TemplateListenerT<Template, Event>,
-    context?: unknown,
-  ): this {
-    return this._addListener(event, listener, context, false, true);
-  }
-
-  public prependListener<Event extends TemplateEventT<Template>>(
     event: Event,
     listener: TemplateListenerT<Template, Event>,
     context?: unknown,
@@ -131,7 +145,14 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
     return this._addListener(event, listener, context, true, false);
   }
 
-  public prependOnceListener<Event extends TemplateEventT<Template>>(
+  /**
+   * Adds a one-time `listener` function for the specified `event` to the end of the `listeners` array. The next time `event` is triggered, this listener is removed, and then invoked.
+   *
+   * @param event
+   * @param listener
+   * @param context - default: `this` (EventEmitter instance)
+   */
+  public once<Event extends TemplateEventT<Template>>(
     event: Event,
     listener: TemplateListenerT<Template, Event>,
     context?: unknown,
@@ -139,71 +160,115 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
     return this._addListener(event, listener, context, true, true);
   }
 
+  /**
+   * Adds the `listener` function to the beginning of the listeners array for the specified `event`. No checks are made to see if the listener has already been added.
+   * Multiple calls passing the same combination of `event` and `listener` will result in the listener being added, and called, multiple times.
+   *
+   * @param event
+   * @param listener
+   * @param context - default: `this` (EventEmitter instance)
+   */
+  public prependListener<Event extends TemplateEventT<Template>>(
+    event: Event,
+    listener: TemplateListenerT<Template, Event>,
+    context?: unknown,
+  ): this {
+    return this._addListener(event, listener, context, false, false);
+  }
+
+  /**
+   * Adds a one-time `listener` function for the specified `event` to the beginning of the `listeners` array. The next time `event` is triggered, this listener is removed, and then invoked.
+   *
+   * @param event
+   * @param listener
+   * @param context - default: `this` (EventEmitter instance)
+   */
+  public prependOnceListener<Event extends TemplateEventT<Template>>(
+    event: Event,
+    listener: TemplateListenerT<Template, Event>,
+    context?: unknown,
+  ): this {
+    return this._addListener(event, listener, context, false, true);
+  }
+
+  /**
+   * Removes all `listeners`, or those of the specified `event`.
+   *
+   * @param event
+   */
   public removeAllListeners<Event extends TemplateEventT<Template>>(
     event?: Event,
   ): this {
     if (event === undefined) {
-      this._listeners = {};
+      this.events = {};
 
       return this;
     }
 
-    if (this._listeners[event] === undefined) return this;
+    if (this.events[event] === undefined) return this;
 
-    this._listeners[event] = undefined;
+    this.events[event] = undefined;
 
     return this;
   }
 
+  /**
+   * Removes the specified `listener` from the `listeners` array for the specified `event`.
+   *
+   * @param event
+   * @param listener
+   */
   public removeListener<Event extends TemplateEventT<Template>>(
     event: Event,
     listener: TemplateListenerT<Template, Event>,
   ): this {
-    const listeners = this._listeners[event];
+    const listeners = this.events[event];
 
     if (listeners === undefined) return this;
 
-    if (isArray(listeners)) {
-      for (let index = listeners.length - 1; index >= 0; index--) {
-        if (listeners[index].listener === listener) listeners.splice(index, 1);
-      }
+    if (isSingleListener(listeners)) {
+      if (listeners.fn === listener) this.events[event] = undefined;
 
-      if (listeners.length === 0) {
-        this._listeners[event] = undefined;
-      } else if (listeners.length === 1) {
-        this._listeners[event] = listeners[0];
-      }
-    } else if (listener === listeners.listener) {
-      this._listeners[event] = undefined;
+      return this;
     }
+
+    for (let index = listeners.length - 1; index >= 0; index--) {
+      if (listeners[index].fn === listener) listeners.splice(index, 1);
+    }
+
+    if (listeners.length === 0) this.events[event] = undefined;
+    else if (listeners.length === 1) this.events[event] = listeners[0];
 
     return this;
   }
 
   protected _addListener<Event extends TemplateEventT<Template>>(
     event: Event,
-    listener: TemplateListenerT<Template, Event>,
+    fn: TemplateListenerT<Template, Event>,
     context: unknown = this,
-    prepend: boolean,
+    append: boolean,
     once: boolean,
   ): this {
-    const item = new Item<Template, Event>(listener, context, once);
-    const listeners = this._listeners;
+    const events = this.events;
+    const listeners = events[event];
+    const listener = new Listener<Template, Event>(fn, context, once);
 
-    if (listeners[event] === undefined) {
-      listeners[event] = item;
-    } else if (isArray(listeners[event])) {
-      if (prepend) {
-        (listeners[event] as Item<Template, Event>[]).unshift(item);
-      } else {
-        (listeners[event] as Item<Template, Event>[]).push(item);
-      }
+    if (listeners === undefined) {
+      events[event] = listener;
+
+      return this;
+    }
+
+    if (isSingleListener(listeners)) {
+      events[event] = append ? [listeners, listener] : [listener, listeners];
+
+      return this;
+    }
+
+    if (append) {
+      listeners.push(listener);
     } else {
-      if (prepend) {
-        listeners[event] = [item, listeners[event] as Item<Template, Event>];
-      } else {
-        listeners[event] = [listeners[event] as Item<Template, Event>, item];
-      }
+      listeners.unshift(listener);
     }
 
     return this;
@@ -212,7 +277,7 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
 
 export default EventEmitter;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isArray(value: any): value is any[] {
-  return value.length !== undefined;
+function isSingleListener<Type>(value: Type | Type[]): value is Type {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (value as any).length === undefined;
 }
