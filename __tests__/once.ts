@@ -97,7 +97,7 @@ it("only emits once with context", (done) => {
 
   e.once(
     "foo",
-    function (this: unknown, bar) {
+    function (bar) {
       expect(this).toEqual(context);
       expect(bar).toBe("bar");
 

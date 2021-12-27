@@ -1,26 +1,18 @@
-import type { EventsT, EventTemplateT, TemplateEventT, TemplateListenerArgsT, TemplateListenerT } from "./constants";
 import Listener from "./Listener";
+import type {
+  EventTemplateT,
+  TemplateEventT,
+  TemplateListenerArgsT,
+  TemplateListenerContextT,
+  TemplateListenerT,
+} from "./Listener";
 
-interface EventEmitter<Template extends EventTemplateT = EventTemplateT> {
-  on<Event extends TemplateEventT<Template>>(
-    event: Event,
-    listener: TemplateListenerT<Template, Event>,
-    context?: unknown,
-  ): this;
-
-  off<Event extends TemplateEventT<Template>>(
-    event: Event,
-    listener: TemplateListenerT<Template, Event>,
-  ): this;
-}
-
-class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
+export default class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
   protected events: EventsT<Template> = {};
 
-  constructor() {
-    this.on = this.addListener;
-    this.off = this.removeListener;
-  }
+  public on = this.addListener;
+
+  public off = this.removeListener;
 
   /**
    * Returns an array listing the events for which the emitter has registered listeners.
@@ -38,7 +30,7 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
    */
   public rawListeners<Event extends TemplateEventT<Template>>(
     event: Event,
-  ): Listener<Template, Event>[] {
+  ): Listener<Template, Event, this>[] {
     const listeners = this.events[event];
 
     if (listeners === undefined) return [];
@@ -55,7 +47,7 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
    */
   public listeners<Event extends TemplateEventT<Template>>(
     event: Event,
-  ): TemplateListenerT<Template, Event>[] {
+  ): TemplateListenerT<Template, Event, this>[] {
     const listeners = this.rawListeners(event);
     const length = listeners.length;
 
@@ -80,7 +72,8 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
   }
 
   /**
-   * Synchronously calls each of the listeners registered for the specified `event`, in the order they were registered, passing the supplied arguments to each.
+   * Synchronously calls each of the listeners registered for the specified `event`,
+   * in the order they were registered, passing the supplied arguments to each.
    *
    * @param event
    * @param args
@@ -130,63 +123,69 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
   }
 
   /**
-   * Adds the `listener` function to the end of the listeners array for the specified `event`. No checks are made to see if the listener has already been added.
-   * Multiple calls passing the same combination of `event` and `listener` will result in the listener being added, and called, multiple times.
+   * Adds the `listener` function to the end of the listeners array for the specified `event`.
+   * No checks are made to see if the listener has already been added.
+   * Multiple calls passing the same combination of `event` and `listener` will result in the listener being added,
+   * and called, multiple times.
    *
    * @param event
    * @param listener
    * @param context - default: `this` (EventEmitter instance)
    */
-  public addListener<Event extends TemplateEventT<Template>>(
+  public addListener<Event extends TemplateEventT<Template>, Context = TemplateListenerContextT<Template, Event, this>>(
     event: Event,
-    listener: TemplateListenerT<Template, Event>,
-    context?: unknown,
+    listener: TemplateListenerT<Template, Event, Context>,
+    context?: Context,
   ): this {
     return this._addListener(event, listener, context, true, false);
   }
 
   /**
-   * Adds a one-time `listener` function for the specified `event` to the end of the `listeners` array. The next time `event` is triggered, this listener is removed, and then invoked.
+   * Adds a one-time `listener` function for the specified `event` to the end of the `listeners` array.
+   * The next time `event` is triggered, this listener is removed, and then invoked.
    *
    * @param event
    * @param listener
    * @param context - default: `this` (EventEmitter instance)
    */
-  public once<Event extends TemplateEventT<Template>>(
+  public once<Event extends TemplateEventT<Template>, Context = TemplateListenerContextT<Template, Event, this>>(
     event: Event,
-    listener: TemplateListenerT<Template, Event>,
-    context?: unknown,
+    listener: TemplateListenerT<Template, Event, Context>,
+    context?: Context,
   ): this {
     return this._addListener(event, listener, context, true, true);
   }
 
   /**
-   * Adds the `listener` function to the beginning of the listeners array for the specified `event`. No checks are made to see if the listener has already been added.
-   * Multiple calls passing the same combination of `event` and `listener` will result in the listener being added, and called, multiple times.
+   * Adds the `listener` function to the beginning of the listeners array for the specified `event`.
+   * No checks are made to see if the listener has already been added.
+   * Multiple calls passing the same combination of `event` and `listener` will result in the listener being added,
+   * and called, multiple times.
    *
    * @param event
    * @param listener
    * @param context - default: `this` (EventEmitter instance)
    */
-  public prependListener<Event extends TemplateEventT<Template>>(
+  public prependListener<Event extends TemplateEventT<Template>, Context = TemplateListenerContextT<Template, Event, this>>(
     event: Event,
-    listener: TemplateListenerT<Template, Event>,
-    context?: unknown,
+    listener: TemplateListenerT<Template, Event, Context>,
+    context?: Context,
   ): this {
     return this._addListener(event, listener, context, false, false);
   }
 
   /**
-   * Adds a one-time `listener` function for the specified `event` to the beginning of the `listeners` array. The next time `event` is triggered, this listener is removed, and then invoked.
+   * Adds a one-time `listener` function for the specified `event` to the beginning of the `listeners` array.
+   * The next time `event` is triggered, this listener is removed, and then invoked.
    *
    * @param event
    * @param listener
    * @param context - default: `this` (EventEmitter instance)
    */
-  public prependOnceListener<Event extends TemplateEventT<Template>>(
+  public prependOnceListener<Event extends TemplateEventT<Template>, Context = TemplateListenerContextT<Template, Event, this>>(
     event: Event,
-    listener: TemplateListenerT<Template, Event>,
-    context?: unknown,
+    listener: TemplateListenerT<Template, Event, Context>,
+    context?: Context,
   ): this {
     return this._addListener(event, listener, context, false, true);
   }
@@ -220,7 +219,7 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
    */
   public removeListener<Event extends TemplateEventT<Template>>(
     event: Event,
-    listener: TemplateListenerT<Template, Event>,
+    listener: TemplateListenerT<Template, Event, this>,
   ): this {
     const listeners = this.events[event];
 
@@ -242,16 +241,16 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
     return this;
   }
 
-  protected _addListener<Event extends TemplateEventT<Template>>(
+  protected _addListener<Event extends TemplateEventT<Template>, Context = TemplateListenerContextT<Template, Event, this>>(
     event: Event,
-    fn: TemplateListenerT<Template, Event>,
-    context: unknown = this,
+    fn: TemplateListenerT<Template, Event, Context>,
+    context: Context = this as never,
     append: boolean,
     once: boolean,
   ): this {
     const events = this.events;
     const listeners = events[event];
-    const listener = new Listener<Template, Event>(fn, context, once);
+    const listener = new Listener<Template, Event, Context>(fn, context, once);
 
     if (listeners === undefined) {
       events[event] = listener;
@@ -275,9 +274,12 @@ class EventEmitter<Template extends EventTemplateT = EventTemplateT> {
   }
 }
 
-export default EventEmitter;
-
 function isSingleListener<Type>(value: Type | Type[]): value is Type {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (value as any).length === undefined;
 }
+
+export type EventsT<Template extends EventTemplateT> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [Event in TemplateEventT<Template>]?: Listener<Template, Event, any> | Listener<Template, Event, any>[];
+};

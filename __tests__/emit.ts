@@ -15,7 +15,7 @@ it("should emit with context", (done) => {
 
   e.on(
     "foo",
-    function (this: unknown, bar) {
+    function (bar) {
       expect(bar).toBe("bar");
       expect(this).toEqual(context);
 
@@ -35,7 +35,7 @@ it("should emit with context, multiple arguments (force apply)", (done) => {
 
   e.on(
     "foo",
-    function (this: unknown, bar) {
+    function (bar) {
       expect(bar).toBe("bar");
       expect(this).toEqual(context);
 
@@ -92,7 +92,7 @@ it("should be able to emit with context, multiple listeners (force loop)", () =>
 
   e.on(
     "foo",
-    function (this: unknown, bar) {
+    function (bar) {
       expect(this).toEqual({ foo: "bar" });
       expect(bar).toBe("bar");
     },
@@ -101,7 +101,7 @@ it("should be able to emit with context, multiple listeners (force loop)", () =>
 
   e.on(
     "foo",
-    function (this: unknown, bar) {
+    function (bar) {
       expect(this).toEqual({ bar: "baz" });
       expect(bar).toBe("bar");
     },
@@ -115,7 +115,7 @@ it("should be able to emit with different contexts", () => {
   const e = new EventEmitter();
   let pattern = "";
 
-  function writer(this: unknown) {
+  function writer(this: string) {
     pattern += this;
   }
 
