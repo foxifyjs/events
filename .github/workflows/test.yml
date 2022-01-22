@@ -4,18 +4,27 @@
 name: Test
 
 on:
+  schedule:
+    - cron: "0 0 * * *"
   push:
     branches:
       - master
   pull_request:
 
 jobs:
-  build:
+  test:
 
     strategy:
       matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
-        node-version: [ 14.x, 15.x, 16.x ]
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+        node-version:
+          - 14
+          - 15
+          - 16
+          - 17
 
     runs-on: ${{ matrix.os }}
 
@@ -49,7 +58,12 @@ jobs:
       - name: Test
         run: npm run test:ci
 
+      - name: Benchmark
+        if: github.event_name == 'schedule'
+        run: npm run benchmarks
+
       - name: Upload coverage to Codecov
+        if: github.event_name != 'schedule'
         uses: codecov/codecov-action@v1
         with:
           env_vars: OS,NODE_VERSION
