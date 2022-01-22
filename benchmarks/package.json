@@ -6,6 +6,6 @@
     "eventemitter2": "^6.4.5",
     "eventemitter3": "^4.0.7",
     "eventsV1": "npm:@foxify/events@^1.1.4",
-    "table": "^6.7.5"
+    "table": "^6.8.0"
   }
 }
