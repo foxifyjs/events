@@ -62,22 +62,38 @@ For the API documentation, please follow the official Node.js [documentation](ht
 
 > "error" event is always defined by default because of its different behavior
 
+first create events type (optional)
+
 ```typescript
-interface Events {
+type Events = {
   foo: (bar: string) => void;
+  withContextEnforcement: (this: number, bar: number) => void;
 }
+```
 
+then create a new direct/extended instance
+
+```typescript
 const eventEmitter = new EventEmitter<Events>();
+```
 
-// or
-
+```typescript
 class Emitter extends EventEmitter<Events> {
 }
 
 const eventEmitter = new Emitter();
+```
 
+then start emitting & listening to events
+
+```typescript
 // Works just fine. so don't worry about "ImplicitAny" config, since type of "bar" is defined as "string"
 eventEmitter.on("foo", bar => 1);
+
+// This works fine as well
+eventEmitter.on("withContextEnforcement", function (bar) {
+  return this + bar;
+}, 1);
 
 // Throws an error (TS compile time), since this event requires the "bar" argument of type "string"
 eventEmitter.emit("foo");
